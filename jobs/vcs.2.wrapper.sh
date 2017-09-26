@@ -20,5 +20,6 @@ module load gcc/6.3.0  perl/5.24.0  gsl/2.3
 wrapper="$HOME/vc-benchmark-cesga/src/INDELIble_wrapper.v2.pl"
 controlFile="$HOME/vc-benchmark-cesga/files/indelible.control.v2.txt"
 #Usage: ./INDELIble_wrapper.pl directory input_config seed numberofcores
-perl $wrapper $pipelinesName.$pipeID $controlFile $MYRANDOMSEED 1 &> "$LUSTRE/output/$pipelinesName.$pipeID.1.2.indelible.wrapper.txt"
+echo "perl $wrapper $pipelinesName.$pipeID $controlFile 523911721 1 &> \"$LUSTRE/output/$pipelinesName.$pipeID.1.2.indelible.wrapper.txt\""
+perl $wrapper $pipelinesName.$pipeID $controlFile 523911721 1 &> "$LUSTRE/output/$pipelinesName.$pipeID.1.2.indelible.wrapper.txt"
 module unload gcc/6.3.0  perl/5.24.0  gsl/2.3

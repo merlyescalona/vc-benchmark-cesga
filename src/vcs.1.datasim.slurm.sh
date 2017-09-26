@@ -52,9 +52,8 @@ cpan> o conf commit
 cpan> q
 cpan install Math::GSL
 ################################################################################
-qsubLine=$(sbatch -a 1-3 $folderJOBS/1.2.indelible.wrapper.sh | awk '{ print $4}')
-jobID=$($qsubLine | awk '{ print $3}')
-step=1; rep=1; status="[error]"; description="Job header badly formatted."
+jobID=$(sbatch -a 1-3 $folderJOBS/1.2.indelible.wrapper.sh | awk '{ print $4}')
+step=2; rep=1; status="[error]"; description="Wrapper for the 3 folders"
 echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $jobsSent
 
 ################################################################################
