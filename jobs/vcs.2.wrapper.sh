@@ -16,10 +16,10 @@ pipeID=$(printf "%05g" ${SLURM_ARRAY_TASK_ID})
 pipelinesName="vcs"
 echo $pipeID, $pipelinesName
 module purge
-module load gcc/6.3.0  perl/5.24.0  gsl/2.3
-wrapper="$HOME/vc-benchmark-cesga/src/INDELIble_wrapper.v2.pl"
+module load gcc/6.3.0 os-devel/usr openssl/1.0.2f  gsl/2.3 perl/5.24.0 
+wrapper="$HOME/vc-benchmark-cesga/src/INDELible_wrapper_v2.pl"
 controlFile="$HOME/vc-benchmark-cesga/files/indelible.control.v2.txt"
 #Usage: ./INDELIble_wrapper.pl directory input_config seed numberofcores
 echo "perl $wrapper $pipelinesName.$pipeID $controlFile 523911721 1 &> \"$LUSTRE/output/$pipelinesName.$pipeID.1.2.indelible.wrapper.txt\""
-perl $wrapper $pipelinesName.$pipeID $controlFile 523911721 1 &> "$LUSTRE/output/$pipelinesName.$pipeID.1.2.indelible.wrapper.txt"
-module unload gcc/6.3.0  perl/5.24.0  gsl/2.3
+perl $wrapper $LUSTRE/data/$pipelinesName.$pipeID $controlFile 523911721 1 &> "$LUSTRE/output/$pipelinesName.$pipeID.1.2.indelible.wrapper.txt"
+module unload gcc/6.3.0 os-devel/usr openssl/1.0.2f  gsl/2.3 perl/5.24.0 
