@@ -9,26 +9,30 @@
 ################################################################################
 #!/bin/bash -l
 ################################################################################
-# Program paths
+# Folder paths
 ################################################################################
-pipelinesName="vcsCESGA"
 WD="$HOME/vc-benchmark-cesga"
-folderDATA="$LUSTRE/data"
 folderJOBS="$WD/jobs"
+folderDATA="$LUSTRE/data"
 folderOUTPUT="$LUSTRE/output"
 folderERROR="$LUSTRE/error"
 folderINFO="$LUSTRE/info"
-fileJOBS="$infoFolder/jobs.sent.txt"
+fileJOBS="$folderINFO/jobs.sent.txt"
+################################################################################
+# Variables
+################################################################################
+pipelinesName="vcsCESGA"
+MYRANDOMSEED=523911721 # echo "$RANDOM$RANDOM"
 ################################################################################
 # 0. Folder structure
 ################################################################################
-git clone https://merlyescalona@github.com/merlyescalona/vc-benchmark.git $HOME/vc-benchmark-cesga
+git clone https://merlyescalona@github.com/merlyescalona/vc-benchmark-cesga.git $HOME/vc-benchmark-cesga
 mkdir $folderDATA  $folderOUTPUT  $folderERROR  $folderINFO
-echo -e "PipelinesName\tStep\tRepetition\tJOBID\tStatus\tDescription" > $jobsSent
+echo -e "PipelinesName\tStep\tRepetition\tJOBID\tStatus\tDescription" > $fileJOBS
 ################################################################################
 # STEP 1. SimPhyvc
 ################################################################################
-jobID=$(sbatch  $WD/jobs/vcs.1.simphy.sh | awk '{ print $4}')
+jobID=$(sbatch  $folderJOBS/vcs.1.simphy.sh | awk '{ print $4}')
 echo "Job submitted: $jobID"
 step=1; rep=2; status="[error]"; description="Job header badly formatted."
 echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $jobsSent
