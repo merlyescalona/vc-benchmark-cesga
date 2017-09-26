@@ -21,7 +21,7 @@ fileJOBS="$folderINFO/jobs.sent.txt"
 ################################################################################
 # Variables
 ################################################################################
-pipelinesName="vcsCESGA"
+pipelinesName="vcs"
 MYRANDOMSEED=523911721 # echo "$RANDOM$RANDOM"
 ################################################################################
 # 0. Folder structure
@@ -32,9 +32,9 @@ echo -e "PipelinesName\tStep\tRepetition\tJOBID\tStatus\tDescription" > $fileJOB
 ################################################################################
 # STEP 1. SimPhyvc
 ################################################################################
-jobID=$(sbatch  $folderJOBS/vcs.1.simphy.sh | awk '{ print $4}')
+jobID=$(sbatch 1-3 $folderJOBS/vcs.1.simphy.sh | awk '{ print $4}')
 echo "Job submitted: $jobID"
-step=1; rep=2; status="[error]"; description="Job header badly formatted."
+step=1; rep=1; status="[done]"; description="Ran 3 folders"
 echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $jobsSent
 ################################################################################
 # STEP 2. INDELible wrapper
@@ -44,9 +44,19 @@ echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> 
 # run it for all the configurations, it is necessary to modify the name of the
 # output files in order to keep track of every thing
 ################################################################################
-qsubLine="qsub $jobsFolder/$pipelinesName.1.2.indelible.wrapper.sh"
+# Previous to running the wrapper I had to set up the perl env.
+module load gcc/6.3.0  perl/5.24.0  gsl/2.3 loaded
+% cpan
+cpan> o conf mbuildpl_arg '--install_base /home/uvi/be/mef/perl'
+cpan> o conf commit
+cpan> q
+cpan install Math::GSL
+################################################################################
+qsubLine=$(sbatch -a 1-3 $folderJOBS/1.2.indelible.wrapper.sh | awk '{ print $4}')
 jobID=$($qsubLine | awk '{ print $3}')
-echo "$pipelinesName"".1.2    $jobID" >> $jobsSent
+step=1; rep=1; status="[error]"; description="Job header badly formatted."
+echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $jobsSent
+
 ################################################################################
 # STEP 1.3 Filtering STs
 ################################################################################
