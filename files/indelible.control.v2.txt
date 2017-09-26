@@ -1,0 +1,10 @@
+[TYPE] NUCLEOTIDE 1
+[SETTINGS]
+    [fastaextension] fasta
+    [output] FASTA
+[SIMPHY-UNLINKED-MODEL] csVCS
+    [submodel] GTR $(rd:20,2,4,6,8,16)
+    [statefreq] $(d:1,1,1,1)
+[rates] 0 $(e:2) 0
+[SIMPHY-PARTITIONS] unlinked [1 csVCS 1000]
+[SIMPHY-EVOLVE] 1 vcs // One sequence alignment for each gene tree
