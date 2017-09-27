@@ -11,18 +11,7 @@
 ################################################################################
 # Folder paths
 ################################################################################
-WD="$HOME/vc-benchmark-cesga"
-folderJOBS="$WD/jobs"
-folderDATA="$LUSTRE/data"
-folderOUTPUT="$LUSTRE/output"
-folderERROR="$LUSTRE/error"
-folderINFO="$LUSTRE/info"
-fileJOBS="$folderINFO/jobs.sent.txt"
-################################################################################
-# Variables
-################################################################################
-pipelinesName="vcs"
-MYRANDOMSEED=523911721 # echo "$RANDOM$RANDOM"
+source $HOME/vc-benchmark-cesga/src/vcs.variables.sh
 ################################################################################
 # 0. Folder structure
 ################################################################################
@@ -32,7 +21,7 @@ echo -e "PipelinesName\tStep\tRepetition\tJOBID\tStatus\tDescription" > $fileJOB
 ################################################################################
 # STEP 1. SimPhyvc
 ################################################################################
-jobID=$(sbatch 1-3 $folderJOBS/vcs.1.simphy.sh | awk '{ print $4}')
+jobID=$(sbatch 2-10 $folderJOBS/vcs.1.simphy.sh | awk '{ print $4}')
 echo "Job submitted: $jobID"
 step=1; rep=1; status="[done]"; description="Ran 3 folders"
 echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $jobsSent
@@ -45,17 +34,24 @@ echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> 
 # output files in order to keep track of every thing
 ################################################################################
 # Previous to running the wrapper I had to set up the perl env.
+<<MODULE_INSTALL_PERL
 module load gcc/6.3.0  perl/5.24.0  gsl/2.3 loaded
 % cpan
 cpan> o conf mbuildpl_arg '--install_base /home/uvi/be/mef/perl'
 cpan> o conf commit
 cpan> q
 cpan install Math::GSL
+MODULE_INSTALL_PERL
 ################################################################################
-jobID=$(sbatch -a 1-3 $folderJOBS/vcs.2.wrapper.sh | awk '{ print $4}')
-step=2; rep=1; status="[error]"; description="Wrapper for the 3 folders"
+jobID=$(sbatch -a 1 $folderJOBS/vcs.2.wrapper.sh | awk '{ print $4}')
+step=2; rep=1; status="[error]"; description="Wrapper 1 folders"
 echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $jobsSent
-
+################################################################################
+# 3. INDELIBLE CALLS
+################################################################################
+jobID=$(sbatch -a 1-10 $folderJOBS/vcs.3.indelible.sh | awk '{ print $4}')
+step=2; rep=1; status="[error]"; description="Wrapper 1 folders"
+echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $jobsSent
 ################################################################################
 # STEP 1.3 Filtering STs
 ################################################################################
