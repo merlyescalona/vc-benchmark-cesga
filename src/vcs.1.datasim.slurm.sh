@@ -50,48 +50,20 @@ echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> 
 # 3. INDELIBLE CALLS
 ################################################################################
 jobID=$(sbatch -a 1-10 $folderJOBS/vcs.3.indelible.sh | awk '{ print $4}')
-step=2; rep=1; status="[error]"; description="Wrapper 1 folders"
+step=2; rep=1; status="[error]"; description="INDELIBLE calls (10)"
 echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $jobsSent
 ################################################################################
-# STEP 1.3 Filtering STs
+# 4. ngsphy
 ################################################################################
-# Filtering species tree replicates with even number of individuals per species
-# to avoid unnecesary indelibe runs
+jobID=$(sbatch $folderJOBS/vcs.4.ngsphy.sh | awk '{ print $4}')
+step=2; rep=1; status="[error]"; description="INDELIBLE calls (10)"
+echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $jobsSent
 ################################################################################
-qsubLine="qsub $jobsFolder/$pipelinesName.1.3.filtering.sts.sh"
-jobID=$($qsubLine | awk '{ print $3}')
-echo "$pipelinesName"".1.3    $jobID" >> $jobsSent
-################################################################################
-# STEP 1.4 INDELible calls
-################################################################################
-SEEDFILE="$WD/git/files/$pipelinesName.evens.jobs"
-totalJobs=$(wc -l $SEEDFILE | awk '{print $1}')
-qsubLine="qsub -t 1-$totalJobs $jobsFolder/$pipelinesName.1.4.indelible.sh"
-jobID=$($qsubLine | awk '{ print $3}')
-echo "$pipelinesName"".1.4    $jobID" >> $jobsSent
-################################################################################
-# STEP 4. Mating
+# 4.1 ART 
 ################################################################################
 
-echo -e "#! /bin/bash
-#$ -m bea
-#$ -M escalona10@gmail.com
-#$ -o $outputFolder/$pipelinesName.4.o
-#$ -e $outputFolder/$pipelinesName.4.e
-#$ -N $pipelinesName.4
-
-module load python/2.7.8
-cd $WD/
-
-python $matingProgram -p $prefixLoci -sf $WD/ -l DEBUG
-
-module unload python/2.7.8
-" >  $scriptsFolder/$pipelinesName.4.sh
-
-jobID=$(qsub -l num_proc=1,s_rt=2:00:00,s_vmem=2G,h_fsize=1G,arch=haswell $scriptsFolder/$pipelinesName.4.sh | awk '{ print $3}')
-
 ################################################################################
-# STEP 5. Reference Loci Selection
+# 5. Reference Loci Selection
 ################################################################################
 echo -e "#! /bin/bash
 #$ -m bea
@@ -112,7 +84,6 @@ ls -Rl $WD > $filesFolder/$pipelinesName.5.files
 echo "$pipelinesName"".5    $jobID" >> $usageFolder/$pipelinesName.5.usage
 cat $outputFolder/$pipelinesName.5.o | grep "El consumo de memoria ha sido de" > $usageFolder/$pipelinesName.5.usage
 cat $outputFolder/$pipelinesName.5.o | grep "El tiempo de ejecucion ha sido de (segundos)" >> $usageFolder/$pipelinesName.5.usage
-
 
 ################################################################################
 # Step 5.1. Create file with information of the reference loci selected
