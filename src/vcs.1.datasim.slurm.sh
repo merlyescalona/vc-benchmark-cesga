@@ -23,8 +23,8 @@ echo -e "PipelinesName\tStep\tRepetition\tJOBID\tStatus\tDescription" > $fileJOB
 ################################################################################
 jobID=$(sbatch 2-10 $folderJOBS/vcs.1.simphy.sh | awk '{ print $4}')
 echo "Job submitted: $jobID"
-step=1; rep=1; status="[done]"; description="Ran 3 folders"
-echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $jobsSent
+step=1; rep=1; status="[sent]"; description="Ran 8 folders"
+echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $fileJOBS
 ################################################################################
 # STEP 2. INDELible wrapper
 ################################################################################
@@ -43,9 +43,9 @@ cpan> q
 cpan install Math::GSL
 MODULE_INSTALL_PERL
 ################################################################################
-jobID=$(sbatch -a 1 $folderJOBS/vcs.2.wrapper.sh | awk '{ print $4}')
-step=2; rep=1; status="[error]"; description="Wrapper 1 folders"
-echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $jobsSent
+jobID=$(sbatch -a 2-11 $folderJOBS/vcs.2.wrapper.sh | awk '{ print $4}')
+step=2; rep=1; status="[sent]"; description="Wrapper 10 folders"
+echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $fileJOBS
 ################################################################################
 # 3. INDELIBLE CALLS
 ################################################################################
@@ -59,7 +59,7 @@ jobID=$(sbatch $folderJOBS/vcs.4.ngsphy.sh | awk '{ print $4}')
 step=2; rep=1; status="[error]"; description="INDELIBLE calls (10)"
 echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $jobsSent
 ################################################################################
-# 4.1 ART 
+# 4.1 ART
 ################################################################################
 
 ################################################################################

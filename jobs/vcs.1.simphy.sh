@@ -30,6 +30,6 @@ HH="L:1.2,1" # Gene-by-family heterogeneity
 HG="F:GP" # Gene-by-lineage-specific rate heterogeneity modifier
 
 module purge
-module load gcc/5.3.0 sqlite/3.11.0 simphy/1.0.2
+module load gcc/5.3.0 simphy/1.0.2
 simphy -rs $RS -rl $RL -su $SU -sb $SB -sl $SL -si $SI -sp $SP -st $ST -so $SO -sg $SG -gp $GP -hh $HH -hg $HG  -v 1 -o ${pipelinesName}.$(printf "%05g" ${SLURM_ARRAY_TASK_ID}) -cs 523911721 -od 1 -op 1 -oc 1 -on 1
-module unload gcc/5.3.0 sqlite/3.11.0 simphy/1.0.2
+module unload gcc/5.3.0 simphy/1.0.2
