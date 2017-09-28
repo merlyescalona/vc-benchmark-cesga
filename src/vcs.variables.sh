@@ -8,7 +8,7 @@ CLUSTERENV="sge"
 # PATHS
 ################################################################################
 WD="$HOME/$pipelinesName"
-folderJOBS="$HOME/vc-benchmark/jobs"
+folderJOBS="$HOME/vc-benchmark-cesga/jobs"
 folderDATA="$WD/data"
 folderOUTPUT="$WD/output"
 folderERROR="$WD/error"

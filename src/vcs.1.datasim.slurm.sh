@@ -43,21 +43,21 @@ cpan> q
 cpan install Math::GSL
 MODULE_INSTALL_PERL
 ################################################################################
-jobID=$(sbatch -a 2-11 $folderJOBS/vcs.2.wrapper.sh | awk '{ print $4}')
+jobID=$(sbatch -a 1-11 $folderJOBS/vcs.2.wrapper.sh | awk '{ print $4}')
 step=2; rep=1; status="[sent]"; description="Wrapper 10 folders"
 echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $fileJOBS
 ################################################################################
 # 3. INDELIBLE CALLS
 ################################################################################
-jobID=$(sbatch -a 1-10 $folderJOBS/vcs.3.indelible.sh | awk '{ print $4}')
-step=2; rep=1; status="[error]"; description="INDELIBLE calls (10)"
-echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $jobsSent
+jobID=$(sbatch -a 2 $folderJOBS/vcs.3.indelible.sh | awk '{ print $4}')
+step=2; rep=1; status="[sent]"; description="INDELIBLE calls (1-id 02)"
+echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $fileJOBS
 ################################################################################
 # 4. ngsphy
 ################################################################################
 jobID=$(sbatch $folderJOBS/vcs.4.ngsphy.sh | awk '{ print $4}')
-step=2; rep=1; status="[error]"; description="INDELIBLE calls (10)"
-echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $jobsSent
+step=2; rep=1; status="[error]"; description="NGSPhy calls (10)"
+echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $fileJOBS
 ################################################################################
 # 4.1 ART
 ################################################################################
