@@ -3,14 +3,14 @@
 ################################################################################
 pipelinesName="vcs"
 MYRANDOMSEED=523911721 # echo "$RANDOM$RANDOM"
-CLUSTERENV="sge"
+CLUSTERENV="slurm"
 ################################################################################
 # PATHS
 ################################################################################
 WD="$HOME/$pipelinesName"
 folderJOBS="$HOME/vc-benchmark-cesga/jobs"
-folderDATA="$WD/data"
-folderOUTPUT="$WD/output"
-folderERROR="$WD/error"
-folderINFO="$WD/info"
+folderDATA="$LUSTRE/data"
+folderOUTPUT="$LUSTRE/output"
+folderERROR="$LUSTRE/error"
+folderINFO="$LUSTRE/info"
 fileJOBS="$folderINFO/jobs.sent.txt"
