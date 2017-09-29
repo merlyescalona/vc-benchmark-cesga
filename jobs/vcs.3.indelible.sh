@@ -16,6 +16,7 @@
 ################################################################################
 # Parallel indelible calls (cd to folder + indelible)
 ################################################################################
+echo -e "$(date)\nDefinition of the function"
 parallel_indelible_calls() {
     echo "(func) SimPhy folder"
     echo "(func) cd $1"
@@ -47,9 +48,14 @@ for item in $(seq 1 $nReplicates); do
     echo -e "$LUSTRE/${pipelinesName}/data/${simphyFOLDER}/${locusID}\t${locusID}" > $LUSTRE/${pipelinesName}/data/${simphyFOLDER}/logs/arg_list.txt
 done
 ################################################################################
+# SLURM MEMORY MANAGEMENT
+################################################################################
+corespertask=${SLURM_CPUS_PER_TASK=10}
+SRUN="srun -N1 -n1 --mem=$(( $MEMPERCORE*$corespertask )) -c $corespertask --cpu_bind=none"
+################################################################################
 parallelCOMMAND="parallel --delay .2 -j $nReplicates --joblog $LUSTRE/${pipelinesName}/data/${simphyFOLDER}/logs/runtask.log --resume-failed "
 echo "$parallelCOMMAND --colsep "\t" "parallel_indelible_calls {1} > $LUSTRE/${pipelinesName}/data/${simphyFOLDER}/logs/parallel.{2}.log" < $LUSTRE/${pipelinesName}/data/${simphyFOLDER}/logs/args_list.txt"
-$parallelCOMMAND --colsep "\t" "parallel_indelible_calls {1} > $LUSTRE/${pipelinesName}/data/${simphyFOLDER}/logs/parallel.{2}.log" < $LUSTRE/${pipelinesName}/data/${simphyFOLDER}/logs/args_list.txt
+$parallelCOMMAND --colsep "\t" "$SRUN parallel_indelible_calls {1} > $LUSTRE/${pipelinesName}/data/${simphyFOLDER}/logs/parallel.{2}.log" < $LUSTRE/${pipelinesName}/data/${simphyFOLDER}/logs/args_list.txt
 
 ################################################################################
 module unload gcc/5.3.0 indelible/1.03 parallel
