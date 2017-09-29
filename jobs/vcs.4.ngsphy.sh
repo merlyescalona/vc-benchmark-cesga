@@ -27,8 +27,8 @@ fi
 # PATHS
 ngsphyCOMMAND="$HOME/src/ngsphy/scripts/ngsphy"
 ngsphySettingsGenerator="$HOME/vc-benchmark-cesga/src/vcs.write.ngsphy"
-################################################################################
-
+folderNGSPROFILE="$HOME/vc-benchmark-cesga/files"
+$ngsphySettingsGenerator $pipelinesName $replicateID $LUSTRE/data/$simphyFOLDER
 ################################################################################
 module purge
 module load anaconda2/4.0.0 gcc/5.3.0 art/2016-06-05

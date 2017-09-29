@@ -49,8 +49,12 @@ echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> 
 ################################################################################
 # 3. INDELIBLE CALLS
 ################################################################################
-jobID=$(sbatch -a 2 $folderJOBS/vcs.3.indelible.sh | awk '{ print $4}')
-step=2; rep=1; status="[sent]"; description="INDELIBLE calls (1-id 02)"
+source $HOME/vc-benchmark-cesga/src/vcs.variables.sh
+for item in $(find $LUSTRE/data -maxdepth 2 -mindepth 2 -type d | tail -n+2 | sort); do
+    echo $item >> $HOME/vc-benchmark-cesga/files/${pipelinesName}.3.indelible.folders.txt
+done
+jobID=$(sbatch -a 11-50 $folderJOBS/vcs.3.indelible.array.sh | awk '{ print $4}')
+step=2; rep=4; status="[sent]"; description="INDELIBLE single calls"
 echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $fileJOBS
 ################################################################################
 # 4. ngsphy
