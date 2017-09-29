@@ -28,7 +28,7 @@ export -f parallel_indelible_calls
 ################################################################################
 pipelinesName="vcs"
 simphyFOLDER=${pipelinesName}.$(printf "%05g" ${SLURM_ARRAY_TASK_ID})
-nReplicates=$(find $HOME/${pipelinesName}/data/${simphyFOLDER} -type d | wc -l)
+nReplicates=$(find $LUSTRE/data/${simphyFOLDER} -type d | wc -l)
 let nReplicates=nReplicates-1
 echo $(hostname),$pipelinesName,${SLURM_ARRAY_TASK_ID}, $nReplicates, $simphyFOLDER
 ################################################################################
@@ -37,25 +37,28 @@ module load gcc/5.3.0 indelible/1.03 parallel
 ################################################################################
 # Parallel logs
 echo "Cheking parallel log folder"
-if [ ! -d $LUSTRE/${pipelinesName}/data/${simphyFOLDER}/logs ];then
-    mkdir $LUSTRE/${pipelinesName}/data/${simphyFOLDER}/logs;
+if [ ! -d $LUSTRE/data/${simphyFOLDER}/logs ];then
+    mkdir $LUSTRE/data/${simphyFOLDER}/logs;
 fi
-################################################################################
+#############################################################r###################
 # Getting args for parallel - > folder id of the folder
 echo "Getting args for parallel"
-for item in $(seq 1 $nReplicates); do
-    locusID=$(printf "%02g" $item)
-    echo -e "$LUSTRE/${pipelinesName}/data/${simphyFOLDER}/${locusID}\t${locusID}" > $LUSTRE/${pipelinesName}/data/${simphyFOLDER}/logs/arg_list.txt
-done
+if [ ! -f $LUSTRE/data/${simphyFOLDER}/logs/args_list.txt ]; then
+    for item in $(seq 1 $nReplicates); do
+        locusID=$(printf "%02g" $item)
+        echo -e "$LUSTRE/data/${simphyFOLDER}/${locusID}\t${locusID}" >> $LUSTRE/data/${simphyFOLDER}/logs/args_list.txt
+        touch $LUSTRE/data/${simphyFOLDER}/logs/parallel.${locusID}.log
+    done
+fi
 ################################################################################
 # SLURM MEMORY MANAGEMENT
 ################################################################################
 corespertask=${SLURM_CPUS_PER_TASK=10}
 SRUN="srun -N1 -n1 --mem=$(( $MEMPERCORE*$corespertask )) -c $corespertask --cpu_bind=none"
 ################################################################################
-parallelCOMMAND="parallel --delay .2 -j $nReplicates --joblog $LUSTRE/${pipelinesName}/data/${simphyFOLDER}/logs/runtask.log --resume-failed "
-echo "$parallelCOMMAND --colsep "\t" "parallel_indelible_calls {1} > $LUSTRE/${pipelinesName}/data/${simphyFOLDER}/logs/parallel.{2}.log" < $LUSTRE/${pipelinesName}/data/${simphyFOLDER}/logs/args_list.txt"
-$parallelCOMMAND --colsep "\t" "$SRUN parallel_indelible_calls {1} > $LUSTRE/${pipelinesName}/data/${simphyFOLDER}/logs/parallel.{2}.log" < $LUSTRE/${pipelinesName}/data/${simphyFOLDER}/logs/args_list.txt
+parallelCOMMAND="parallel --delay .2 -j $nReplicates --joblog $LUSTRE/data/${simphyFOLDER}/logs/runtask.log --resume-failed "
+echo "$parallelCOMMAND --colsep "\t" "parallel_indelible_calls {1} > $LUSTRE/data/${simphyFOLDER}/logs/parallel.{2}.log" < $LUSTRE/data/${simphyFOLDER}/logs/args_list.txt"
+$parallelCOMMAND --colsep "\t" "$SRUN parallel_indelible_calls {1} > $LUSTRE/data/${simphyFOLDER}/logs/parallel.{2}.log" < $LUSTRE/data/${simphyFOLDER}/logs/args_list.txt
 
 ################################################################################
 module unload gcc/5.3.0 indelible/1.03 parallel
