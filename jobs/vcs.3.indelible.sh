@@ -4,8 +4,8 @@
 #SBATCH -t 12:00:00
 #
 #SBATCH --job-name=indelible
-#SBATCH --output=/mnt/lustre/scratch/home/uvi/be/mef/output/vcs.3.%o.o
-#SBATCH --error=/mnt/lustre/scratch/home/uvi/be/mef/error/vcs.3.%o.e
+#SBATCH --output=/mnt/lustre/scratch/home/uvi/be/mef/output/vcs.3.%a.o
+#SBATCH --error=/mnt/lustre/scratch/home/uvi/be/mef/error/vcs.3.%a.e
 #SBATCH --workdir=/mnt/lustre/scratch/home/uvi/be/mef/data/
 #
 #SBATCH --mail-type=end
