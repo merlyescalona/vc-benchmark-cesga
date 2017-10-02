@@ -16,7 +16,7 @@
 replicateID=$(printf "%05g" ${SLURM_ARRAY_TASK_ID})
 pipelinesName="vcs"
 simphyFOLDER=${pipelinesName}.$(printf "%05g" ${SLURM_ARRAY_TASK_ID})
-echo -e "[]$(date)] $(hostname):\t${SLURM_ARRAY_TASK_ID},\t$pipelinesName,\t$replicateID,\t$simphyFOLDER"
+echo -e "[$(date)] $(hostname):\t${SLURM_ARRAY_TASK_ID},\t$pipelinesName,\t$replicateID,\t$simphyFOLDER"
 ################################################################################
 # generate ngsphy settings file
 echo "generate ngsphy settings file"
@@ -28,9 +28,11 @@ if [ ! -d $LUSTRE/data/ngsphy.data ];then
 fi
 ################################################################################
 # PATHS
-ngsphySettingsGenerator="$HOME/vc-benchmark-cesga/src/vcs.write.ngsphy"
+ngsphySettingsGenerator="$HOME/vc-benchmark-cesga/src/vcs.write.ngsphy.sh"
 folderNGSPROFILE="$HOME/vc-benchmark-cesga/files"
 ################################################################################
+# bash vcs.write.ngsphy pipelinesName idREPLICATE folderSIMPHY folderNGSPROFILE fileOUTPUT folderOUTPUT
+echo "bash $ngsphySettingsGenerator $pipelinesName $replicateID $LUSTRE/data/$simphyFOLDER $folderNGSPROFILE $LUSTRE/ngsphy.settings/${simphyFOLDER}.txt $LUSTRE/ngsphy.data"
 bash $ngsphySettingsGenerator $pipelinesName $replicateID $LUSTRE/data/$simphyFOLDER $folderNGSPROFILE $LUSTRE/ngsphy.settings/${simphyFOLDER}.txt $LUSTRE/ngsphy.data
 ################################################################################
 module purge
