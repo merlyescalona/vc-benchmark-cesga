@@ -32,14 +32,14 @@ ngsphySettingsGenerator="$HOME/vc-benchmark-cesga/src/vcs.write.ngsphy.sh"
 folderNGSPROFILE="$HOME/vc-benchmark-cesga/files"
 ################################################################################
 # bash vcs.write.ngsphy pipelinesName idREPLICATE folderSIMPHY folderNGSPROFILE fileOUTPUT folderOUTPUT
-echo "bash $ngsphySettingsGenerator $pipelinesName $replicateID $LUSTRE/data/$simphyFOLDER $folderNGSPROFILE $LUSTRE/ngsphy.settings/${simphyFOLDER}.txt $LUSTRE/ngsphy.data"
-bash $ngsphySettingsGenerator $pipelinesName $replicateID $LUSTRE/data/$simphyFOLDER $folderNGSPROFILE $LUSTRE/ngsphy.settings/${simphyFOLDER}.txt $LUSTRE/ngsphy.data
+echo "bash $ngsphySettingsGenerator $pipelinesName $replicateID $LUSTRE/data/$simphyFOLDER $folderNGSPROFILE $LUSTRE/data/ngsphy.settings/${simphyFOLDER}.txt $LUSTRE/data/ngsphy.data"
+bash $ngsphySettingsGenerator $pipelinesName $replicateID $LUSTRE/data/$simphyFOLDER $folderNGSPROFILE $LUSTRE/data/ngsphy.settings/${simphyFOLDER}.txt $LUSTRE/data/ngsphy.data
 ################################################################################
 module purge
 module load anaconda2/4.0.0 gcc/5.3.0 art/2016-06-05
 ################################################################################
 #Usage: ./INDELIble_wrapper.pl directory input_config seed numberofcores
-echo "ngsphy -s $LUSTRE/ngsphy.settings/${simphyFOLDER}.txt"
-ngsphy -s $LUSTRE/ngsphy.settings/${simphyFOLDER}.txt
+echo "ngsphy -s $LUSTRE/data/ngsphy.settings/${simphyFOLDER}.txt"
+ngsphy -s $LUSTRE/data/ngsphy.settings/${simphyFOLDER}.txt
 ################################################################################
 module unload anaconda2/4.0.0 gcc/5.3.0 art/2016-06-05
