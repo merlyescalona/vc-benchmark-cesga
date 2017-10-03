@@ -2,9 +2,9 @@
 #SBATCH -n 1
 #SBATCH -t 00:30:00
 #
-#SBATCH --job-name=vcs.1.1
-#SBATCH --output=/mnt/lustre/scratch/home/uvi/be/mef/output/vcs.1.1.o
-#SBATCH --error=/mnt/lustre/scratch/home/uvi/be/mef/error/vcs.1.1.e
+#SBATCH --job-name=ssp.simphy
+#SBATCH --output=/mnt/lustre/scratch/home/uvi/be/mef/output/ssp.1.1.o
+#SBATCH --error=/mnt/lustre/scratch/home/uvi/be/mef/error/ssp.1.1.e
 #SBATCH --workdir=/mnt/lustre/scratch/home/uvi/be/mef/data/
 #
 #SBATCH --mail-type=begin,end
@@ -13,7 +13,7 @@
 #SBATCH --qos=shared
 
 pipeID=$(printf "%05g" ${SLURM_ARRAY_TASK_ID})
-pipelinesName="vcs"
+pipelinesName="ssp"
 echo $pipeID, $pipelinesName, $(hostname)
 echo $(date)
 RS="10" #number of species trees
