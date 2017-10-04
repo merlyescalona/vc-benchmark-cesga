@@ -5,7 +5,7 @@
 #SBATCH --job-name=indelible
 #SBATCH --output=/mnt/lustre/scratch/home/uvi/be/mef/output/vcs.3.%a.o
 #SBATCH --error=/mnt/lustre/scratch/home/uvi/be/mef/error/vcs.3.%a.e
-#SBATCH --workdir=/mnt/lustre/scratch/home/uvi/be/mef/data/
+#SBATCH --workdir=/mnt/lustre/scratch/home/uvi/be/mef/data/1
 #
 #SBATCH --mail-type=end
 #SBATCH --mail-user=escalona10@gmail.com
