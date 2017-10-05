@@ -63,9 +63,29 @@ jobID=$(sbatch $folderJOBS/vcs.4.ngsphy.sh | awk '{ print $4}')
 step=2; rep=1; status="[error]"; description="NGSPhy calls (10)"
 echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $fileJOBS
 ################################################################################
+for item in $(find $LUSTRE/data/ngsphy.data -maxdepth 1 -mindepth 1 -type d); do
+    echo $item
+    foldername=($(basename $item | tr "_" " "))
+    echo ${foldername[1]}
+    folder="$item/scripts/${foldername[1]}.sh"
+    echo $folder
+    while read -r line
+    do
+        myline=($(echo "$line"))
+        echo ${myline[20]}
+        numelems="${#myline[@]}"
+        myitem="${myline[$numelems-1]}"
+        newFolder=("$(dirname $myitem)")
+        echo $newFolder
+        mkdir -p $newFolder
+    done < "$folder"
+done
+################################################################################
 # 4.1 ART
 ################################################################################
-
+jobID=$(sbatch -a 1-100 $folderJOBS/vcs.5.art.1.sh | awk '{ print $4}')
+step=2; rep=1; status="[error]"; description="NGSPhy calls (10)"
+echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $fileJOBS
 ################################################################################
 # 5. Reference Loci Selection
 ################################################################################
