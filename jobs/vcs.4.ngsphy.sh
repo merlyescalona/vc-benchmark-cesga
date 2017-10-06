@@ -1,7 +1,6 @@
 #!/bin/bash
 #SBATCH -n 1
 #SBATCH -t 10:00:00
-#SBATCH --mem 16000
 #
 #SBATCH --job-name=ngsphy
 #SBATCH --output=/mnt/lustre/scratch/home/uvi/be/mef/output/vcs.4.%a.o
