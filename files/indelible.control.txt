@@ -1,0 +1,12 @@
+[TYPE] NUCLEOTIDE 1
+[SETTINGS]
+    [fastaextension] fasta
+
+[SIMPHY-UNLINKED-MODEL] sim_unlinked
+    [submodel] GTR $(rd:20,2,4,6,8,16)
+    [statefreq] $(d:1,1,1,1)
+[rates] 0 $(e:2) 0
+
+[SIMPHY-PARTITIONS] simUnlinked [1 sim_unlinked $(U:100,2000)]
+
+[SIMPHY-EVOLVE] 1 data // This comment is needed for proper parsing

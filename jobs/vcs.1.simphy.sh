@@ -17,7 +17,7 @@ pipelinesName="ssp"
 echo $pipeID, $pipelinesName, $(hostname)
 echo $(date)
 RS="10" #number of species trees
-RL="F:5000" # Number of locus tree /= to number of gene tress (1 locus tree per gene tree)
+RL="U:100,3000" # Number of locus tree /= to number of gene tress (1 locus tree per gene tree)
 SB="L:-13.58,1.85" # Speciation rate - depends on SU and SI (species tree height and number of inds. per taxa/tips)
 SG="F:1" # tree wide generation time
 SI="U:2,20" #numIndTaxa
