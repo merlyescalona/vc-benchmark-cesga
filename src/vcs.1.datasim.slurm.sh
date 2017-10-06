@@ -50,9 +50,8 @@ echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> 
 # 3. INDELIBLE CALLS
 ################################################################################
 source $HOME/vc-benchmark-cesga/src/vcs.variables.sh
-for item in $(find $LUSTRE/data -maxdepth 2 -mindepth 2 -type d | tail -n+2 | sort); do
-    echo $item >> $HOME/vc-benchmark-cesga/files/${pipelinesName}.3.indelible.folders.txt
-done
+find $LUSTRE/data/ -mindepth 2 -maxdepth 2 -type d | grep ssp | sort > $HOME/vc-benchmark-cesga/files/ssp.3.indelible.folders.txt
+
 jobID=$(sbatch -a 11-50 $folderJOBS/vcs.3.indelible.array.sh | awk '{ print $4}')
 step=3; rep=1; status="[sent]"; description="INDELIBLE single calls"
 echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $fileJOBS
