@@ -9,8 +9,6 @@
 #
 #SBATCH --mail-type=end
 #SBATCH --mail-user=escalona10@gmail.com
-#SBATCH --partition=shared
-#SBATCH --qos=shared
 echo -e "[$(date)]\nDefinition"
 pipelinesName="ssp"
 simphyFOLDER=$(awk "NR==${SLURM_ARRAY_TASK_ID}" $HOME/vc-benchmark-cesga/files/${pipelinesName}.3.indelible.folders.txt)

@@ -7,19 +7,13 @@
 #SBATCH --error=/mnt/lustre/scratch/home/uvi/be/mef/error/vcs.5.1.e
 #SBATCH --workdir=/mnt/lustre/scratch/home/uvi/be/mef/data/
 #
-#SBATCH --mail-type=end
-#SBATCH --mail-user=escalona10@gmail.com
 #SBATCH --partition shared
 #SBATCH --qos=shared
 
 echo -e "[$(date)]\nDefinition"
-command=$(awk "NR==${SLURM_ARRAY_TASK_ID}" $LUSTRE/data/ngsphy.data/NGSphy_vcs.00001/scripts/vcs.00001.sh)
+command=$(awk "NR==${SLURM_ARRAY_TASK_ID}" $LUSTRE/data/ngsphy.data/NGSphy_ssp.00002/scripts/ssp.00002.sh)
 
 module load gcc/5.3.0 art/2016-06-05
-commandArray=($command)
-directory=$(dirname ${commandArray[-1]})
-echo -e "create dir\t:$directory"
-mkdir -p $directory
 echo $command
 $command
 
