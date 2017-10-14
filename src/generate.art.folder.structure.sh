@@ -1,4 +1,6 @@
 #!/bin/bash
+# Create folder structure for ngs reads
+#-------------------------------------------------------------------------------
 for item in $(find $LUSTRE/data/ngsphy.data -maxdepth 1 -mindepth 1 -type d); do
     echo $item
     foldername=($(basename $item | tr "_" " "))

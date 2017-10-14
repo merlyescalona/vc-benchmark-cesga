@@ -9,30 +9,6 @@
 ################################################################################
 #!/bin/bash -l
 ################################################################################
-# Folder paths
-################################################################################
-source $HOME/vc-benchmark-cesga/src/vcs.variables.sh
-################################################################################
-# 0. Folder structure
-################################################################################
-git clone https://merlyescalona@github.com/merlyescalona/vc-benchmark-cesga.git $HOME/vc-benchmark-cesga
-mkdir $folderDATA  $folderOUTPUT  $folderERROR  $folderINFO
-echo -e "PipelinesName\tStep\tRepetition\tJOBID\tStatus\tDescription" > $fileJOBS
-################################################################################
-# STEP 1. SimPhyvc
-################################################################################
-jobID=$(sbatch 2-10 $folderJOBS/vcs.1.simphy.sh | awk '{ print $4}')
-echo "Job submitted: $jobID"
-step=1; rep=1; status="[sent]"; description="Ran 8 folders"
-echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $fileJOBS
-################################################################################
-# STEP 2. INDELible wrapper
-################################################################################
-# After the running of SimPhy, it is necessary to run the INDELIble_wrapper
-# to obtain the control files for INDELible. Since, is not possible to
-# run it for all the configurations, it is necessary to modify the name of the
-# output files in order to keep track of every thing
-################################################################################
 # Previous to running the wrapper I had to set up the perl env.
 <<MODULE_INSTALL_PERL
 module load gcc/6.3.0  perl/5.24.0  gsl/2.3 loaded
@@ -43,256 +19,147 @@ cpan> q
 cpan install Math::GSL
 MODULE_INSTALL_PERL
 ################################################################################
-jobID=$(sbatch -a 1-11 $folderJOBS/vcs.2.wrapper.sh | awk '{ print $4}')
-step=2; rep=1; status="[sent]"; description="Wrapper 10 folders"
-echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $fileJOBS
+# Folder paths
+################################################################################
+source $HOME/vc-benchmark-cesga/src/vcs.variables.sh
+simphyReplicateID=1
+################################################################################
+# 0. Folder structure
+################################################################################
+# git clone https://merlyescalona@github.com/merlyescalona/vc-benchmark-cesga.git $HOME/vc-benchmark-cesga
+# mkdir $folderDATA  $folderOUTPUT  $folderERROR  $folderINFO
+################################################################################
+# STEP 1. SimPhyvc
+################################################################################
+sbatch -a $simphyReplicateID $folderJOBS/vcs.1.simphy.sh | awk '{ print $4}'
+################################################################################
+# STEP 2. INDELible wrapper
+################################################################################
+# After the running of SimPhy, it is necessary to run the INDELIble_wrapper
+# to obtain the control files for INDELible. Since, is not possible to
+# run it for all the configurations, it is necessary to modify the name of the
+# output files in order to keep track of every thing
+################################################################################
+sbatch -a $simphyReplicateID $folderJOBS/vcs.2.wrapper.sh | awk '{ print $4}'
 ################################################################################
 # 3. INDELIBLE CALLS
 ################################################################################
-source $HOME/vc-benchmark-cesga/src/vcs.variables.sh
+# Need to figure out the folder from where I'll call indelilble
+# Need to filter the species tree replicates that do not have ninds % 2==0
 find $LUSTRE/data/ -mindepth 2 -maxdepth 2 -type d | grep ssp | sort > $HOME/vc-benchmark-cesga/files/ssp.3.indelible.folders.txt
-
-jobID=$(sbatch -a 11-50 $folderJOBS/vcs.3.indelible.array.sh | awk '{ print $4}')
-step=3; rep=1; status="[sent]"; description="INDELIBLE single calls"
-echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $fileJOBS
+sbatch -a 11-50 $folderJOBS/vcs.3.indelible.array.sh | awk '{ print $4}'
 ################################################################################
 # 4. ngsphy
 ################################################################################
-jobID=$(sbatch $folderJOBS/vcs.4.ngsphy.sh | awk '{ print $4}')
-step=2; rep=1; status="[error]"; description="NGSPhy calls (10)"
-echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $fileJOBS
+sbatch $folderJOBS/vcs.4.ngsphy.sh
+# Possible - Generate Folder structure for art
 ################################################################################
-for item in $(find $LUSTRE/data/ngsphy.data -maxdepth 1 -mindepth 1 -type d); do
-    echo $item
-    foldername=($(basename $item | tr "_" " "))
-    echo ${foldername[1]}
-    folder="$item/scripts/${foldername[1]}.sh"
-    echo $folder
-    while read -r line
-    do
-        myline=($(echo "$line"))
-        echo ${myline[20]}
-        numelems="${#myline[@]}"
-        myitem="${myline[$numelems-1]}"
-        newFolder=("$(dirname $myitem)")
-        echo $newFolder
-        mkdir -p $newFolder
-    done < "$folder"
+# 4. 0
+#-------------------------------------------------------------------------------
+# Compress gene tree files of the replicates into a single gtrees file.
+# The file will be a tab separated file with the id and the gtree
+################################################################################
+replicateID=$(printf "%05g" $simphyReplicateID)
+replicateFOLDER="$LUSTRE/data/$pipelinesName.$replicateID"
+for replicate in $(find $(pwd) -maxdepth 1 -mindepth 1 -type d | sort); do
+    echo "$replicate"
+    for tree in $(find $replicate -name "g_trees*.trees" | sort); do
+        echo $tree >> $replicate/g_trees.all
+    done
+    echo "Gzipped trees file"
+    gzip $replicate/g_trees.all
+    echo "Removing all g_trees*.trees"
+    find $replicate -name "g_trees*.trees" | xargs rm
 done
+for replicate in $(find $(pwd) -maxdepth 1 -mindepth 1 -type d | sort); do
+    echo "$replicate"
+    mkdir $replicate/FASTA
+    mkdir $replicate/TRUE_FASTA
+    mv $replicate/*_TRUE.fasta $replicate/TRUE_FASTA
+    mv $replicate/*.fasta $replicate/FASTA
+    gzip -r $replicate/TRUE_FASTA
+    gzip -r $replicate/FASTA
+done
+
 ################################################################################
 # 4.1 ART
 ################################################################################
-jobID=$(sbatch -a 1-100 $folderJOBS/vcs.5.art.1.sh | awk '{ print $4}')
-step=2; rep=1; status="[error]"; description="NGSPhy calls (10)"
-echo -e "$pipelinesName\t${step}\t${rep}\t$jobID\t${status}\t${description}" >> $fileJOBS
+# Need to split the command file. This is because the slurm sysmtem does not
+# allow me to launch jobs over 1K.
+################################################################################
+# Moved info to triploid
+<<RSYNC
+# This takes like an hour
+rsync -rP $LUSTRE/data/ngsphy.data/NGSphy_ssp.00002/  merly@triploid.uvigo.es:/home/merly/data/NGSphy_ssp.00002
+# Had to change the names of the paths for the files that were used, since I'm no longer at cesga
+cat ssp.00002.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/\/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files/\/home\/merly\/csNGSProfile/g'  > ssp.00002.triploid.sh
+# Way better and faster to run on triploid sequentially
+RSYNC
+module load gcc/5.2.0 bio/art/050616
+triploidART="/home/merly/data/NGSphy_ssp.00002/scripts/ssp.00002.triploid.sh"
+for item in $(seq 500001 537000); do
+    command=$(awk -v x=$item 'NR==x' $triploidART)
+    echo -e "$item"
+    $command
+done
+
+################################################################################
+<<SPLIT_COMMANDS
+# If staying at LUSTRE, LUSTRE does not allow to launch more than 1000 jobs.
+# So, I had to split the files and wait for all the jobs to finish to launch
+# the following 1000 jobs.
+split -l 1000 -d -a 3 ssp.00002.sh ssp.00002.art.commands.
+for file in $(ls ssp.00002.art.commands*); do    mv $file "$file.sh"; done
+for item in $(find /mnt/lustre/scratch/home/uvi/be/mef/data/ngsphy.data/NGSphy_ssp.00002/scripts -name "ssp.00002.art.commands*" | sort); do
+    sbatch -a 1-1000 $HOME/vc-benchmark-cesga/jobs/vcs.5.art.param.sh $item;
+done
+SPLIT_COMMANDS
 ################################################################################
 # 5. Reference Loci Selection
 ################################################################################
-echo -e "#! /bin/bash
-#$ -m bea
-#$ -M escalona10@gmail.com
-#$ -o $outputFolder/$pipelinesName.5.o
-#$ -e $outputFolder/$pipelinesName.5.e
-#$ -N $pipelinesName.5
-
-module load python/2.7.8
-cd $WD/
-python $lociReferenceSelection -ip $prefixLoci -op $prefixRef -sf $WD -o $WD/references/ -m 1
-module unload python/2.7.8
-" >  $scriptsFolder/$pipelinesName.5.sh
-
-jobID=$(qsub -l num_proc=1,s_rt=0:10:00,s_vmem=2G,h_fsize=1G,arch=haswell $scriptsFolder/$pipelinesName.5.sh | awk '{ print $3}')
-echo "$pipelinesName"".5    $jobID" >> $jobsSent
-ls -Rl $WD > $filesFolder/$pipelinesName.5.files
-echo "$pipelinesName"".5    $jobID" >> $usageFolder/$pipelinesName.5.usage
-cat $outputFolder/$pipelinesName.5.o | grep "El consumo de memoria ha sido de" > $usageFolder/$pipelinesName.5.usage
-cat $outputFolder/$pipelinesName.5.o | grep "El tiempo de ejecucion ha sido de (segundos)" >> $usageFolder/$pipelinesName.5.usage
-
+refselector -p -ip data outgroup  -op -o outgroup -m 0 -nsize 250
+refselector -p -ip data ringroup -op -o rndingroup -m 2 -nsize 250
 ################################################################################
-# Step 5.1. Create file with information of the reference loci selected
-################################################################################
-for item in $(find $referencesFolder -name *.fasta); do
-  head -1 $item >> $WD/${pipelinesName}.references.txt
+# 6. Organize and compress read files (ssp.regroup.ngs.individuals)
+#-------------------------------------------------------------------------------
+replicateNum=$1
+pipelinesName="ssp"
+replicateID="$(printf "%0${replicatesNumDigits}g" $replicateID)"
+replicatesNumDigits=5
+ngsphyReplicatePath="$LUSTRE/data/ngsphy.data/NGSphy_${pipelinesName}.${replicateID}"
+# reads/1/03/testwsimphy_1_03_data_7_R2.fq
+numReplicates=10
+# NGSMODE=("PE150OWN" "PE150DFLT" "PE250DFLT" "SE150DFLT" "SE250DFLT")
+# MODE=("PAIRED", "SINGLE")
+NGSMODE="PE150OWN"
+MODE="PAIRED"
+for replicateST in $(seq 1 $numReplicates); do
+    numIndividuals=$( cat $ngsphyReplicatePath/ind_labels/${pipelinesName}.${replicateST}.individuals.csv | tail -n+2 | wc -l)
+    let numIndividuals=numIndividuals-1
+    mkdir -p $ngsphyReplicatePath/$NGSMODE/$replicateST
+    for individualID in $(seq 0 $numIndividuals); do
+        fqFilesR1=($(find $ngsphyReplicatePath/reads/$replicateST -name "*_${individualID}_R1.fq"))
+        for item in ${fqFilesR1[@]}; do
+            cat $item >>  $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_${replicateST}_${individualID}_R1.fq
+            gzip $item
+        done
+        gzip $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_${replicateST}_${individualID}_R1.fq
+        if [[ MODE -eq "PAIRED" ]]; then
+            fqFilesR2=($(find $ngsphyReplicatePath/reads/$replicateST -name "*_${individualID}_R2.fq"))
+            for item in ${fqFilesR2[@]}; do
+                cat $item >>  $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_${replicateST}_${individualID}_R2.fq
+                gzip $item
+            done
+            gzip $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_${replicateST}_${individualID}_R2.fq
+        fi
+    done
 done
 
+# rm -f reads
 ################################################################################
-# STEP 6. Diversity Statistics
-################################################################################
-# Creating an index file
-/
-sgeCounter=1
-for line in $(cat $WD/$pipelinesName.evens); do
-  st=$(printf "%0$numDigits""g" $line)
-  for indexGT in $(seq 1 $nGTs); do
-    gt=$(printf "%0$numDigitsGTs""g" $indexGT)
-    echo -e "$sgeCounter\t$st\t$gt\t$WD/$st/${prefixLoci}_${gt}_TRUE.phy" >>  $scriptsFolder/$pipelinesName.diversity.re
-    echo -e "$WD/$st/${prefix}_${gt}_TRUE.phy" >>  $scriptsFolder/$pipelinesName.diversity.files
-    let sgeCounter=sgeCounter+1
-  done
-done
-################################################################################
-# Running diversity
-counter=1
-divFile="$scriptsFolder/$pipelinesName.diversity.files"
-#divFile="mnt/phylolab/uvibemef/csSim0/report/scripts/csSim0.diversity.files"
-totalFiles=$(wc -l $divFile |awk '{print $1}')
-echo -e "#! /bin/bash
-#$ -o $outputFolder/$pipelinesName.6.o
-#$ -e $outputFolder/$pipelinesName.6.e
-#$ -N $pipelinesName.6
-
-cd $WD/1
-
-" > $scriptsFolder/$pipelinesName.6.sh
-for line in $(cat $divFile); do
-  echo $counter/$totalFiles
-  INPUTBASE=$(basename $line .phy)
-  filename=$(basename $line)
-  echo "diversity $filename &> $WD/report/stats/${INPUTBASE}.0.stats" >> $scriptsFolder/$pipelinesName.6.sh
-  echo "diversity $filename -g &> $WD/report/stats/${INPUTBASE}.1.stats">> $scriptsFolder/$pipelinesName.6.sh
-  echo "diversity $filename -g -m -p 2> $WD/report/stats/${INPUTBASE}.2.stats">> $scriptsFolder/$pipelinesName.6.sh
-  echo "cat $WD/report/stats/${INPUTBASE}.2.stats | sed 's/\.0000/,/g' | sed 's/-/,-,/g' | sed 's/      ,//g'  | tail -n+15 >  $WD/report/stats/${INPUTBASE}.3.stats">> $scriptsFolder/$pipelinesName.6.sh
-  let counter=counter+1
-done
-
-jobID=$(qsub -l num_proc=1,s_rt=0:30:00,s_vmem=2G,h_fsize=1G,arch=haswell $scriptsFolder/$pipelinesName.6.sh | awk '{ print $3}')
-echo "$pipelinesName"".6    $jobID" >> $jobsSent
-ls -Rl $WD > $filesFolder/$pipelinesName.6.files
-echo "$pipelinesName"".6    $jobID" >> $usageFolder/$pipelinesName.6.usage
-cat $outputFolder/$pipelinesName.6.o | grep "El consumo de memoria ha sido de" > $usageFolder/$pipelinesName.6.usage
-cat $outputFolder/$pipelinesName.6.o | grep "El tiempo de ejecucion ha sido de (segundos)" >> $usageFolder/$pipelinesName.6.usage
+# 6. stats
 
 
-
-################################################################################
-# Parsing diversity
-################################################################################
-# Parsing both distance matrices file and output for summary
-# Output file
-tmp1="$WD/diversity.parsing.1.tmp"
-tmp2="$WD/diversity.parsing.2.tmp"
-for indexGT in $(seq 1 $nGTs); do
-  gt=$(printf "%0$numDigitsGTs""g" $indexGT)
-  elem=$(cat $WD/report/stats/${prefixLoci}_${gt}_TRUE.0.stats | grep "mean pairwise distance =" | awk -F"=" '{print $2}' )
-  echo $elem
-  echo $elem >>$tmp1
-done
-cat $outputFolder/$pipelinesName.6.o | grep ^data| paste -d "," - $tmp1 > $tmp2
-diversitySummary="$WD/${pipelinesName}.diversity.summary"
-echo "file,numTaxa,numSites,NumVarSites,NumInfSites,numMissSites,numGapSites,numAmbiguousSites,freqA,freqC,freqG,freqT,meanPairwiseDistancePerSite,meanPairwiseDistance" > $diversitySummary
-cat $tmp2 >> $diversitySummary
-rm $tmp1 $tmp2
-
-# Distance matrices
-outFolder="$WD/report/stats/csv"
-inputFolder="$WD/report/stats"
-mkdir $outFolder
-
-echo -e "#! /bin/bash
-#$ -m bea
-#$ -M escalona10@gmail.com
-#$ -o $outputFolder/$pipelinesName.6.1.o
-#$ -e $outputFolder/$pipelinesName.6.1.e
-#$ -N $pipelinesName.6.1
-
-module load R/3.2.3
-" > $scriptsFolder/$pipelinesName.6.1.sh
-for item in $(seq 1 $nGTs); do
-  gt=$(printf "%0$numDigitsGTs""g" $item)
-  inputbase="${prefixLoci}_${gt}"
-  echo $inputbase
-
-  echo "Rscript --vanilla $HOME/src/me-phylolab-conussim/diversityMatrices/parseDiversityMatrices.R $inputFolder $inputbase $outFolder" >> $scriptsFolder/$pipelinesName.6.1.sh
-done
-echo "module unload R/3.2.3" >> $scriptsFolder/$pipelinesName.6.1.sh
-
-
-jobID=$(qsub -l num_proc=1,s_rt=0:30:00,s_vmem=2G,h_fsize=1G,arch=haswell $scriptsFolder/$pipelinesName.6.1.sh | awk '{ print $3}')
-echo "$pipelinesName"".6.1    $jobID" >> $jobsSent
-ls -Rl $WD > $filesFolder/$pipelinesName.6.1.files
-echo "$pipelinesName"".6.1    $jobID" >> $usageFolder/$pipelinesName.6.1.usage
-cat $outputFolder/$pipelinesName.6.1.o | grep "El consumo de memoria ha sido de" > $usageFolder/$pipelinesName.6.1.usage
-cat $outputFolder/$pipelinesName.6.1.o | grep "El tiempo de ejecucion ha sido de (segundos)" >> $usageFolder/$pipelinesName.6.1.usage
-
-################################################################################
-# STEP 7. NGS Simulation
-################################################################################
-for line in $(tail -n+2  $WD/$pipelinesName.mating); do
-  array=(${line//,/ })
-  # Have 5 elems
-  st=${array[0]}
-  gt=${array[1]}
-  ind=${array[2]}
-  echo "$st $gt $ind"
-  inputFile="${pipelinesName}_${st}_${gt}_${prefix}_${ind}.fasta"
-  echo "$WD/individuals/$st/$gt/$inputFile" >>  $scriptsFolder/$pipelinesName.7.art.files
-done
-
-SEEDFILE="$scriptsFolder/$pipelinesName.7.art.files"
-for line in $(cat $WD/$pipelinesName.evens); do
-  st=$(printf "%0$numDigits""g" $line)
-  echo -e "#! /bin/bash
-#$ -o $outputFolder/$pipelinesName.7.$st.o
-#$ -e $outputFolder/$pipelinesName.7.$st.e
-#$ -N $pipelinesName.7.$st
-
-SEED=\$(awk \"NR==\$SGE_TASK_ID\" $SEEDFILE )
-INPUTBASE=\$(basename \$SEED .fasta)
-
-cd $readsFolder/
-art_illumina -sam  -1 $profilePath/csNGSProfile_hiseq2500_1.txt -2 $profilePath/csNGSProfile_hiseq2500_2.txt -f 100 -l 150 -p  -m 250 -s 50 -rs $RANDOM -ss HS25 -i \$SEED -o \${INPUTBASE}_R
-
-">   $scriptsFolder/$pipelinesName.7.art.$st.sh
-done
-
-totalArtJobs=$(wc -l $SEEDFILE | awk '{print $1}')
-for line in $(cat $WD/$pipelinesName.evens); do
-  st=$(printf "%0$numDigits""g" $line)
-  echo "$st"
-  jobID=$(qsub -l num_proc=1,s_rt=0:05:00,s_vmem=2G,h_fsize=1G,arch=haswell -t 1-$totalArtJobs $scriptsFolder/$pipelinesName.7.art.$st.sh | awk '{ print $3}')
-done
-
-
-<<ITERATEJOBS
-for i in $(seq 21001 1000 50000); do
-  echo "Sending jobs from $i to $temp"
-  qsub -l num_proc=1,s_rt=0:05:00,s_vmem=2G,h_fsize=1G,arch=haswell -t $i-$temp $scriptsFolder/$pipelinesName.7.art.1.sh
-  let temp=temp+1000
-  sleep 600
-done
-ITERATEJOBS
-################################################################################
-# STEP 8. Reorganize reads accroding to output file format and ST and GT.
-################################################################################
-
-# Just works for this case, will need to rearrange the folders.
-# Need to think how would be the best way
-# probably reads/ST/fq,aln,sam
-
-for line in $(tail -n+2  $WD/$pipelinesName.mating); do
-  array=(${line//,/ })
-  # Have 5 elems
-  st=${array[0]}
-  gt=${array[1]}
-  ind=${array[2]}
-  echo "$st/$gt"
-  mkdir -p $fqReadsFolder/$st/$gt/ $alnReadsFolder/$st/$gt/ $samReadsFolder/$st/$gt/
-done
-
-mv $readsFolder/*.fq $readsFolder/fq
-mv $readsFolder/*.sam $readsFolder/sam
-mv $readsFolder/*.aln $readsFolder/aln
-for line in $(cat $WD/$pipelinesName.evens); do
-  st=$(printf "%0$numDigits""g" $line)
-  for item in $(seq 1 $nGTs); do
-    gt=$(printf "%0$numDigitsGTs""g" $item)
-    echo -e "\r$st/$gt"
-    filePrefix="${pipelinesName}_${st}_${gt}_data_"
-    mv "$fqReadsFolder/$filePrefix"* $fqReadsFolder/$st/$gt/
-    mv "$samReadsFolder/$filePrefix"* $samReadsFolder/$st/$gt/
-    mv "$alnReadsFolder/$filePrefix"* $alnReadsFolder/$st/$gt/
-  done
-done
 
 ################################################################################
 # STEP 9. FASTQC
