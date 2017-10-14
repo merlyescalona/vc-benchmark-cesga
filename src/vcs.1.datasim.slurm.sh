@@ -31,7 +31,7 @@ simphyReplicateID=1
 ################################################################################
 # STEP 1. SimPhyvc
 ################################################################################
-sbatch -a $simphyReplicateID $folderJOBS/vcs.1.simphy.sh | awk '{ print $4}'
+step1JOBID=$(sbatch -a $simphyReplicateID $folderJOBS/vcs.1.simphy.sh | awk '{ print $4}')
 ################################################################################
 # STEP 2. INDELible wrapper
 ################################################################################
@@ -40,14 +40,15 @@ sbatch -a $simphyReplicateID $folderJOBS/vcs.1.simphy.sh | awk '{ print $4}'
 # run it for all the configurations, it is necessary to modify the name of the
 # output files in order to keep track of every thing
 ################################################################################
-sbatch -a $simphyReplicateID $folderJOBS/vcs.2.wrapper.sh | awk '{ print $4}'
+step2JOBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step1JOBID $folderJOBS/vcs.2.wrapper.sh | awk '{ print $4}')
 ################################################################################
 # 3. INDELIBLE CALLS
 ################################################################################
 # Need to figure out the folder from where I'll call indelilble
 # Need to filter the species tree replicates that do not have ninds % 2==0
-find $LUSTRE/data/ -mindepth 2 -maxdepth 2 -type d | grep ssp | sort > $HOME/vc-benchmark-cesga/files/ssp.3.indelible.folders.txt
-sbatch -a 11-50 $folderJOBS/vcs.3.indelible.array.sh | awk '{ print $4}'
+numJobs=$(wc -l $HOME/vc-benchmark-cesga/files/${pipelinesName}.$(printf "%05g" $simphyReplicateID).indelible.folders.txt))
+step3JOBID=$(sbatch -a 1-$numJobs --dependency=afterok:$step2JOBID $folderJOBS/vcs.3.indelible.array.sh $simphyReplicateID | awk '{ print $4}')
+step3JOBID=$(sbatch -a 1-$numJobs $folderJOBS/vcs.3.indelible.array.sh $simphyReplicateID | awk '{ print $4}')
 ################################################################################
 # 4. ngsphy
 ################################################################################
@@ -71,14 +72,18 @@ for replicate in $(find $(pwd) -maxdepth 1 -mindepth 1 -type d | sort); do
     echo "Removing all g_trees*.trees"
     find $replicate -name "g_trees*.trees" | xargs rm
 done
-for replicate in $(find $(pwd) -maxdepth 1 -mindepth 1 -type d | sort); do
+for replicate in $(find $(pwd) -maxdepth 1 -mindepth 1 -type d | sort | tail -n+2); do
     echo "$replicate"
     mkdir $replicate/FASTA
     mkdir $replicate/TRUE_FASTA
-    mv $replicate/*_TRUE.fasta $replicate/TRUE_FASTA
-    mv $replicate/*.fasta $replicate/FASTA
+    mv "$replicate/*_TRUE.fasta" $replicate/TRUE_FASTA
+    mv "$replicate/*.fasta" $replicate/FASTA
     gzip -r $replicate/TRUE_FASTA
     gzip -r $replicate/FASTA
+    tar -czf $replicate/TRUE_FASTA.tar.gz $replicate/TRUE_FASTA
+    tar -czf $replicate/FASTA.tar.gz $replicate/FASTA
+    rm -rf $replicate/TRUE_FASTA
+    rm -rf $replicate/FASTA
 done
 
 ################################################################################

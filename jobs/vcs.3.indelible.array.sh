@@ -11,7 +11,7 @@
 #SBATCH --mail-user=escalona10@gmail.com
 echo -e "[$(date)]\nDefinition"
 pipelinesName="ssp"
-simphyFOLDER=$(awk "NR==${SLURM_ARRAY_TASK_ID}" $HOME/vc-benchmark-cesga/files/${pipelinesName}.3.indelible.folders.txt)
+simphyFOLDER=$(awk "NR==${SLURM_ARRAY_TASK_ID}" $HOME/vc-benchmark-cesga/files/${pipelinesName}.$(printf "%05g" $1).indelible.folders.txt)
 echo -e "[$(date)] \t module purge \t module load gcc/5.3.0 indelible/1.03"
 module purge
 module load gcc/5.3.0 indelible/1.03
