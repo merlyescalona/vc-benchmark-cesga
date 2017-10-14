@@ -2,9 +2,9 @@
 #SBATCH -n 1
 #SBATCH -t 00:30:00
 #
-#SBATCH --job-name=ssp.simphy
-#SBATCH --output=/mnt/lustre/scratch/home/uvi/be/mef/output/ssp.1.1.o
-#SBATCH --error=/mnt/lustre/scratch/home/uvi/be/mef/error/ssp.1.1.e
+#SBATCH --job-name=simphy
+#SBATCH --output=/mnt/lustre/scratch/home/uvi/be/mef/output/ssp.1.%a.o
+#SBATCH --error=/mnt/lustre/scratch/home/uvi/be/mef/error/ssp.1.%a.e
 #SBATCH --workdir=/mnt/lustre/scratch/home/uvi/be/mef/data/
 #
 #SBATCH --mail-type=begin,end
