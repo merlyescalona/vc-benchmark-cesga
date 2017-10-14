@@ -13,10 +13,10 @@ ploidy=2
 [data]
 inputmode=4
 simphy_folder_path=$folderSIMPHY
-simphy_data_prefix=vcs
+simphy_data_prefix=data
 simphy_filter=true
 [coverage]
-experiment=F:100
+experiment=U:1, 300
 individual=LN:1.2,1
 locus=LN:1.2,1
 [ngs-reads-art]
@@ -26,8 +26,8 @@ l=150
 m=215
 s=50
 q=true
+p=true
 na=false
-ss=HS25
 [execution]
 environment=bash
 runART=off

@@ -7,6 +7,8 @@
 #SBATCH --error=/mnt/lustre/scratch/home/uvi/be/mef/error/ssp.3.%a.e
 #SBATCH --workdir=/mnt/lustre/scratch/home/uvi/be/mef/data/
 #
+#SBATCH --partition=shared
+#SBATCH --qos=shared
 #SBATCH --mail-type=end
 #SBATCH --mail-user=escalona10@gmail.com
 echo -e "[$(date)]\nDefinition"
