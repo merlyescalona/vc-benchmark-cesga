@@ -9,12 +9,12 @@
 #
 #SBATCH --mail-type=begin,end
 #SBATCH --mail-user=escalona10@gmail.com
-#SBATCH --partition shared
+#SBATCH --partition=shared
 #SBATCH --qos=shared
 ################################################################################
 # Variables
 replicateID=$(printf "%05g" ${SLURM_ARRAY_TASK_ID})
-pipelinesName="vcs"
+pipelinesName="ssp"
 simphyFOLDER=${pipelinesName}.$(printf "%05g" ${SLURM_ARRAY_TASK_ID})
 echo -e "[$(date)] $(hostname):\t${SLURM_ARRAY_TASK_ID},\t$pipelinesName,\t$replicateID,\t$simphyFOLDER"
 ################################################################################

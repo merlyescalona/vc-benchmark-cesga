@@ -46,13 +46,12 @@ step2JOBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step1JOBID $fold
 ################################################################################
 # Need to figure out the folder from where I'll call indelilble
 # Need to filter the species tree replicates that do not have ninds % 2==0
-numJobs=$(wc -l $HOME/vc-benchmark-cesga/files/${pipelinesName}.$(printf "%05g" $simphyReplicateID).indelible.folders.txt))
-step3JOBID=$(sbatch -a 1-$numJobs --dependency=afterok:$step2JOBID $folderJOBS/vcs.3.indelible.array.sh $simphyReplicateID | awk '{ print $4}')
+numJobs=$(wc -l $HOME/vc-benchmark-cesga/files/${pipelinesName}.$(printf "%05g" $simphyReplicateID).indelible.folders.txt | awk '{ print $1}')
 step3JOBID=$(sbatch -a 1-$numJobs $folderJOBS/vcs.3.indelible.array.sh $simphyReplicateID | awk '{ print $4}')
 ################################################################################
 # 4. ngsphy
 ################################################################################
-sbatch $folderJOBS/vcs.4.ngsphy.sh
+step4JOBID=$(sbatch -a $simphyReplicateID   --dependency=afterok:$step3JOBID $folderJOBS/vcs.4.ngsphy.sh)
 # Possible - Generate Folder structure for art
 ################################################################################
 # 4. 0
@@ -102,7 +101,7 @@ cat ssp.00002.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsp
 RSYNC
 module load gcc/5.2.0 bio/art/050616
 triploidART="/home/merly/data/NGSphy_ssp.00002/scripts/ssp.00002.triploid.sh"
-for item in $(seq 500001 537000); do
+for item in $(seq 3000 3500); do
     command=$(awk -v x=$item 'NR==x' $triploidART)
     echo -e "$item"
     $command
