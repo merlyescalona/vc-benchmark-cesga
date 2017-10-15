@@ -11,7 +11,6 @@
 #SBATCH --qos=shared
 
 echo -e "[$(date)]\nDefinition"
-command=$(awk "NR==${SLURM_ARRAY_TASK_ID}")
 nlines=$(wc -l $1 | awk '{print $1}')
 module load gcc/5.3.0 art/2016-06-05
 for item in $(seq 1 $nlines);do
