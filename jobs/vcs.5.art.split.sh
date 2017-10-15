@@ -15,7 +15,7 @@ nlines=$(wc -l $1 | awk '{print $1}')
 module load gcc/5.3.0 art/2016-06-05
 for item in $(seq 1 $nlines);do
     echo "$item"
-    command=$(awk -v x=$item "NR==x")
+    command=$(awk -v x=$item "NR==x" $1)
     $command
 done
 
