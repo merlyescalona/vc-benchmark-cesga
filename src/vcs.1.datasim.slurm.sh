@@ -22,7 +22,7 @@ MODULE_INSTALL_PERL
 # Folder paths
 ################################################################################
 source $HOME/vc-benchmark-cesga/src/vcs.variables.sh
-simphyReplicateID=1
+simphyReplicateID=3
 ################################################################################
 # 0. Folder structure
 ################################################################################
@@ -51,7 +51,7 @@ step3JOBID=$(sbatch -a 1-$numJobs $folderJOBS/vcs.3.indelible.array.sh $simphyRe
 ################################################################################
 # 4. ngsphy
 ################################################################################
-step4JOBID=$(sbatch -a $simphyReplicateID   --dependency=afterok:$step3JOBID $folderJOBS/vcs.4.ngsphy.sh)
+step4JOBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step3JOBID $folderJOBS/vcs.4.ngsphy.sh)
 # Possible - Generate Folder structure for art
 ################################################################################
 # 4. 0
@@ -59,31 +59,35 @@ step4JOBID=$(sbatch -a $simphyReplicateID   --dependency=afterok:$step3JOBID $fo
 # Compress gene tree files of the replicates into a single gtrees file.
 # The file will be a tab separated file with the id and the gtree
 ################################################################################
+simphyReplicateID=1
 replicateID=$(printf "%05g" $simphyReplicateID)
+pipelinesName="ssp"
 replicateFOLDER="$LUSTRE/data/$pipelinesName.$replicateID"
-for replicate in $(find $(pwd) -maxdepth 1 -mindepth 1 -type d | sort); do
+# replicateFOLDER="/home/merly/data/ssp.00001"
+for replicate in $(find $replicateFOLDER -maxdepth 1 -mindepth 1 -type d | sort); do
     echo "$replicate"
     for tree in $(find $replicate -name "g_trees*.trees" | sort); do
-        echo $tree >> $replicate/g_trees.all
+        cat $tree >> $replicate/g_trees.all
     done
     echo "Gzipped trees file"
     gzip $replicate/g_trees.all
     echo "Removing all g_trees*.trees"
     find $replicate -name "g_trees*.trees" | xargs rm
 done
-for replicate in $(find $(pwd) -maxdepth 1 -mindepth 1 -type d | sort | tail -n+2); do
+for replicate in $(find $replicateFOLDER -maxdepth 1 -mindepth 1 -type d | sort); do
     echo "$replicate"
-    mkdir $replicate/FASTA
-    mkdir $replicate/TRUE_FASTA
-    mv "$replicate/*_TRUE.fasta" $replicate/TRUE_FASTA
-    mv "$replicate/*.fasta" $replicate/FASTA
-    gzip -r $replicate/TRUE_FASTA
-    gzip -r $replicate/FASTA
-    tar -czf $replicate/TRUE_FASTA.tar.gz $replicate/TRUE_FASTA
-    tar -czf $replicate/FASTA.tar.gz $replicate/FASTA
+    mkdir $replicate/FASTA $replicate/TRUE_FASTA
+    cd $replicate
+    mv *_TRUE.fasta TRUE_FASTA
+    mv *.fasta FASTA
+    tar -czf TRUE_FASTA.tar.gz TRUE_FASTA
+    tar -czf FASTA.tar.gz FASTA
     rm -rf $replicate/TRUE_FASTA
     rm -rf $replicate/FASTA
 done
+
+rsync -rP $replicateFOLDER/  merly@triploid.uvigo.es:/home/merly/data/$pipelinesName.$replicateID
+rsync -rP $LUSTRE/data/ngsphy.data/NGSphy_$pipelinesName.$replicateID/  merly@triploid.uvigo.es:/home/merly/data/NGSphy_$pipelinesName.$replicateID
 
 ################################################################################
 # 4.1 ART
@@ -100,11 +104,17 @@ cat ssp.00002.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsp
 # Way better and faster to run on triploid sequentially
 RSYNC
 module load gcc/5.2.0 bio/art/050616
-triploidART="/home/merly/data/NGSphy_ssp.00002/scripts/ssp.00002.triploid.sh"
-for item in $(seq 3000 3500); do
-    command=$(awk -v x=$item 'NR==x' $triploidART)
-    echo -e "$item"
-    $command
+replicateNum=1
+pipelinesName="ssp"
+replicatesNumDigits=5
+replicateID="$pipelinesName.$(printf "%0${replicatesNumDigits}g" $replicateNum)"
+cat ${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/\/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files/\/home\/merly\/csNGSProfile/g'  > ${replicateID}.triploid.sh
+triploidART="/home/merly/data/NGSphy_${replicateID}/scripts/${replicateID}.triploid.sh"
+split -l 10000 -d -a 2 ${replicateID}.triploid.sh ${replicateID}.art.commands.
+for file in $(ls ${replicateID}.art.commands*); do    mv $file "$file.sh"; done
+for item in $(find /home/merly/data/NGSphy_${replicateID}/scripts/ -name "${replicateID}.art.commands*" | sort); do
+    echo $item
+    qsub $HOME/jobs/vcs.5.art.split.sh $item;
 done
 
 ################################################################################
@@ -112,10 +122,11 @@ done
 # If staying at LUSTRE, LUSTRE does not allow to launch more than 1000 jobs.
 # So, I had to split the files and wait for all the jobs to finish to launch
 # the following 1000 jobs.
-split -l 1000 -d -a 3 ssp.00002.sh ssp.00002.art.commands.
+split -l 50000 -d -a 2 ssp.00001.sh ssp.00001.art.commands.
 for file in $(ls ssp.00002.art.commands*); do    mv $file "$file.sh"; done
-for item in $(find /mnt/lustre/scratch/home/uvi/be/mef/data/ngsphy.data/NGSphy_ssp.00002/scripts -name "ssp.00002.art.commands*" | sort); do
-    sbatch -a 1-1000 $HOME/vc-benchmark-cesga/jobs/vcs.5.art.param.sh $item;
+for item in $(find /mnt/lustre/scratch/home/uvi/be/mef/data/ngsphy.data/NGSphy_ssp.00001/scripts -name "ssp.00001.art.commands*" | sort); do
+    echo $item
+    sbatch $HOME/vc-benchmark-cesga/jobs/vcs.5.art.split.sh $item;
 done
 SPLIT_COMMANDS
 ################################################################################
@@ -126,35 +137,34 @@ refselector -p -ip data ringroup -op -o rndingroup -m 2 -nsize 250
 ################################################################################
 # 6. Organize and compress read files (ssp.regroup.ngs.individuals)
 #-------------------------------------------------------------------------------
-replicateNum=$1
+replicateNum=2
 pipelinesName="ssp"
-replicateID="$(printf "%0${replicatesNumDigits}g" $replicateID)"
+replicateID="$(printf "%0${replicatesNumDigits}g" $replicateNum)"
 replicatesNumDigits=5
-ngsphyReplicatePath="$LUSTRE/data/ngsphy.data/NGSphy_${pipelinesName}.${replicateID}"
+# ngsphyReplicatePath="$LUSTRE/data/ngsphy.data/NGSphy_${pipelinesName}.${replicateID}"
+ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
 # reads/1/03/testwsimphy_1_03_data_7_R2.fq
-numReplicates=10
 # NGSMODE=("PE150OWN" "PE150DFLT" "PE250DFLT" "SE150DFLT" "SE250DFLT")
 # MODE=("PAIRED", "SINGLE")
 NGSMODE="PE150OWN"
 MODE="PAIRED"
-for replicateST in $(seq 1 $numReplicates); do
-    numIndividuals=$( cat $ngsphyReplicatePath/ind_labels/${pipelinesName}.${replicateST}.individuals.csv | tail -n+2 | wc -l)
+for replicateST in 1 2 4 10; do
+    numIndividuals=$( cat $ngsphyReplicatePath/ind_labels/${pipelinesName}.${replicateID}.$(printf "%02g" $replicateST).individuals.csv | tail -n+2 | wc -l)
     let numIndividuals=numIndividuals-1
-    mkdir -p $ngsphyReplicatePath/$NGSMODE/$replicateST
+    mkdir -p $ngsphyReplicatePath/$NGSMODE/$(printf "%02g" $replicateST)
     for individualID in $(seq 0 $numIndividuals); do
-        fqFilesR1=($(find $ngsphyReplicatePath/reads/$replicateST -name "*_${individualID}_R1.fq"))
+        echo $(printf "%02g" $replicateST), $individualID
+        fqFilesR1=($(find $ngsphyReplicatePath/reads/$(printf "%02g" $replicateST) -name "*_${individualID}_R1.fq"))
         for item in ${fqFilesR1[@]}; do
-            cat $item >>  $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_${replicateST}_${individualID}_R1.fq
-            gzip $item
+            cat $item >>  $ngsphyReplicatePath/$NGSMODE/$(printf "%02g" $replicateST)/${pipelinesName}_$(printf "%02g" $replicateST)_${individualID}_R1.fq
         done
-        gzip $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_${replicateST}_${individualID}_R1.fq
+        gzip $ngsphyReplicatePath/$NGSMODE/$(printf "%02g" $replicateST)/${pipelinesName}_$(printf "%02g" $replicateST)_${individualID}_R1.fq
         if [[ MODE -eq "PAIRED" ]]; then
-            fqFilesR2=($(find $ngsphyReplicatePath/reads/$replicateST -name "*_${individualID}_R2.fq"))
+            fqFilesR2=($(find $ngsphyReplicatePath/reads/$(printf "%02g" $replicateST) -name "*_${individualID}_R2.fq"))
             for item in ${fqFilesR2[@]}; do
-                cat $item >>  $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_${replicateST}_${individualID}_R2.fq
-                gzip $item
+                cat $item >>  $ngsphyReplicatePath/$NGSMODE/$(printf "%02g" $replicateST)/${pipelinesName}_$(printf "%02g" $replicateST)_${individualID}_R2.fq
             done
-            gzip $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_${replicateST}_${individualID}_R2.fq
+            gzip $ngsphyReplicatePath/$NGSMODE/$(printf "%02g" $replicateST)/${pipelinesName}_$(printf "%02g" $replicateST)_${individualID}_R2.fq
         fi
     done
 done
