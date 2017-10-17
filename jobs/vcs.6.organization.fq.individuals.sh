@@ -1,8 +1,8 @@
 #!/bin/bash
 #$ -v pipelinesName=ssp
 #$ -wd /home/merly/data
-#$ -o /home/merly/org.ind.fq.%t.o
-#$ -e /home/merly/org.ind.fq.%t.e
+#$ -o /home/merly/org.ind.fq.o
+#$ -e /home/merly/org.ind.fq.e
 #$ -N org.ind.fq
 
 # $1 - NGSMODE
@@ -25,7 +25,7 @@ numIndividuals=$( cat $ngsphyReplicatePath/ind_labels/${pipelinesName}.${replica
 let numIndividuals=numIndividuals-1
 mkdir -p $ngsphyReplicatePath/$NGSMODE/$replicateST
 for individualID in $(seq 0 $numIndividuals); do
-    echo $replicateST, $individualID
+    echo $SGE_TASK_ID,$JOB_ID, $HOSTNAME, $replicateST, $individualID
     fqFilesR1=($(find $ngsphyReplicatePath/reads_run/$replicateST -name "*_${individualID}_R1.fq"))
     cat ${fqFilesR1[*]} >  $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_$replicateST_${individualID}_R1.fq
     gzip $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_$replicateST_${individualID}_R1.fq

@@ -182,8 +182,34 @@ for item in $(find /home/merly/data/NGSphy_${pipelinesName}.${replicateID}/scrip
     qsub $HOME/jobs/vcs.5.art.split.sh $item;
 done
 
-
 ################################################################################
+# ORganization of individual reads
+################################################################################
+simphyReplicateID=2
+ngsphyReplicatePath=$HOME/data/NGSphy_${pipelinesName}.$(printf "%05g" $simphyReplicateID)
+
+replicates=($(ls $ngsphyReplicatePath/reads))
+for replicateST in ${replicates[*]}; do
+    qsub -t $simphyReplicateID $HOME/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh PE150OWN PAIRED $replicateST
+done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###############################################################################
 # STEP 9. FASTQC
 ################################################################################
 
