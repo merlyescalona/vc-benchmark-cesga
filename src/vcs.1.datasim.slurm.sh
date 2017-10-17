@@ -95,15 +95,23 @@ rsync -rP $LUSTRE/data/ngsphy.data/NGSphy_$pipelinesName.$replicateID/  merly@tr
 # Need to split the command file. This is because the slurm sysmtem does not
 # allow me to launch jobs over 1K.
 ################################################################################
-# Moved info to triploid
+<<SPLIT_COMMANDS
+# If staying at LUSTRE, LUSTRE does not allow to launch more than 1000 jobs.
+# So,if I had to split the files and wait for all the jobs to finish to launch
+# the following 1000 jobs.
+# In any case, I'm moving things to triploid,
+# Way better and faster to run on triploid sequentially
+SPLIT_COMMANDS
 <<RSYNC
 # This takes like an hour
 rsync -rP $LUSTRE/data/ngsphy.data/NGSphy_ssp.00002/  merly@triploid.uvigo.es:/home/merly/data/NGSphy_ssp.00002
 # Had to change the names of the paths for the files that were used, since I'm no longer at cesga
 cat ssp.00002.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/\/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files/\/home\/merly\/csNGSProfile/g'  > ssp.00002.triploid.sh
-# Way better and faster to run on triploid sequentially
+
 RSYNC
-module load gcc/5.2.0 bio/art/050616
+################################################################################
+#  Run 1 - PE 150 bp with custom profile
+################################################################################
 replicateNum=1
 pipelinesName="ssp"
 replicatesNumDigits=5
@@ -116,36 +124,39 @@ for item in $(find /home/merly/data/NGSphy_${replicateID}/scripts/ -name "${repl
     echo $item
     qsub $HOME/jobs/vcs.5.art.split.sh $item;
 done
-
 ################################################################################
-<<SPLIT_COMMANDS
-# If staying at LUSTRE, LUSTRE does not allow to launch more than 1000 jobs.
-# So, I had to split the files and wait for all the jobs to finish to launch
-# the following 1000 jobs.
-split -l 50000 -d -a 2 ssp.00001.sh ssp.00001.art.commands.
-for file in $(ls ssp.00002.art.commands*); do    mv $file "$file.sh"; done
-for item in $(find /mnt/lustre/scratch/home/uvi/be/mef/data/ngsphy.data/NGSphy_ssp.00001/scripts -name "ssp.00001.art.commands*" | sort); do
+#  Run 1 - PE 150 bp with custom profile
+################################################################################
+replicateNum=1
+pipelinesName="ssp"
+replicatesNumDigits=5
+replicateID="$(printf "%0${replicatesNumDigits}g" $replicateNum)"
+# ngsphyReplicatePath="$LUSTRE/data/ngsphy.data/NGSphy_${pipelinesName}.${replicateID}"
+ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
+cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/--qprof1 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_1.txt --qprof2 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_2.txt/ -ss HS25/g'  > $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.triploid.HS25.sh
+triploidART="/home/merly/data/NGSphy_${replicateID}/scripts/${replicateID}.triploid.HS25.sh"
+cd /home/merly/data/NGSphy_${pipelinesName}.${replicateID}/scripts/
+split -l 10000 -d -a 2 ${pipelinesName}.${replicateID}.triploid.HS25.sh ${pipelinesName}.${replicateID}.art.commands.
+for file in $(ls /home/merly/data/NGSphy_${pipelinesName}.${replicateID}/scripts/${pipelinesName}.${replicateID}.art.commands*); do    mv $file "$file.sh"; done
+for item in $(find /home/merly/data/NGSphy_${pipelinesName}.${replicateID}/scripts/ -name "${pipelinesName}.${replicateID}.art.commands*" | sort); do
     echo $item
-    sbatch $HOME/vc-benchmark-cesga/jobs/vcs.5.art.split.sh $item;
+    qsub $HOME/jobs/vcs.5.art.split.sh $item;
 done
-SPLIT_COMMANDS
-################################################################################
-# 5. Reference Loci Selection
-################################################################################
-refselector -p -ip data outgroup  -op -o outgroup -m 0 -nsize 250
-refselector -p -ip data ringroup -op -o rndingroup -m 2 -nsize 250
 ################################################################################
 # 6. Organize and compress read files (ssp.regroup.ngs.individuals)
 #-------------------------------------------------------------------------------
 replicateNum=2
 pipelinesName="ssp"
-replicateID="$(printf "%0${replicatesNumDigits}g" $replicateNum)"
 replicatesNumDigits=5
+replicateID="$(printf "%0${replicatesNumDigits}g" $replicateNum)"
 # ngsphyReplicatePath="$LUSTRE/data/ngsphy.data/NGSphy_${pipelinesName}.${replicateID}"
 ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
 # reads/1/03/testwsimphy_1_03_data_7_R2.fq
 # NGSMODE=("PE150OWN" "PE150DFLT" "PE250DFLT" "SE150DFLT" "SE250DFLT")
 # MODE=("PAIRED", "SINGLE")
+mv $ngsphyReplicatePath/reads $ngsphyReplicatePath/reads_run
+find $ngsphyReplicatePath/individuals/ -mindepth 2 -maxdepth 2 -type d |sed 's/individuals/reads/g' | xargs mkdir -p
+
 NGSMODE="PE150OWN"
 MODE="PAIRED"
 for replicateST in 1 2 4 10; do
@@ -154,16 +165,12 @@ for replicateST in 1 2 4 10; do
     mkdir -p $ngsphyReplicatePath/$NGSMODE/$(printf "%02g" $replicateST)
     for individualID in $(seq 0 $numIndividuals); do
         echo $(printf "%02g" $replicateST), $individualID
-        fqFilesR1=($(find $ngsphyReplicatePath/reads/$(printf "%02g" $replicateST) -name "*_${individualID}_R1.fq"))
-        for item in ${fqFilesR1[@]}; do
-            cat $item >>  $ngsphyReplicatePath/$NGSMODE/$(printf "%02g" $replicateST)/${pipelinesName}_$(printf "%02g" $replicateST)_${individualID}_R1.fq
-        done
+        fqFilesR1=($(find $ngsphyReplicatePath/reads_run/$(printf "%02g" $replicateST) -name "*_${individualID}_R1.fq"))
+        cat ${fqFilesR1[@]} >  $ngsphyReplicatePath/$NGSMODE/$(printf "%02g" $replicateST)/${pipelinesName}_$(printf "%02g" $replicateST)_${individualID}_R1.fq
         gzip $ngsphyReplicatePath/$NGSMODE/$(printf "%02g" $replicateST)/${pipelinesName}_$(printf "%02g" $replicateST)_${individualID}_R1.fq
         if [[ MODE -eq "PAIRED" ]]; then
-            fqFilesR2=($(find $ngsphyReplicatePath/reads/$(printf "%02g" $replicateST) -name "*_${individualID}_R2.fq"))
-            for item in ${fqFilesR2[@]}; do
-                cat $item >>  $ngsphyReplicatePath/$NGSMODE/$(printf "%02g" $replicateST)/${pipelinesName}_$(printf "%02g" $replicateST)_${individualID}_R2.fq
-            done
+            fqFilesR2=($(find $ngsphyReplicatePath/reads_run/$(printf "%02g" $replicateST) -name "*_${individualID}_R2.fq"))
+            cat ${fqFilesR2[@]} >  $ngsphyReplicatePath/$NGSMODE/$(printf "%02g" $replicateST)/${pipelinesName}_$(printf "%02g" $replicateST)_${individualID}_R2.fq
             gzip $ngsphyReplicatePath/$NGSMODE/$(printf "%02g" $replicateST)/${pipelinesName}_$(printf "%02g" $replicateST)_${individualID}_R2.fq
         fi
     done
@@ -174,7 +181,11 @@ done
 # 6. stats
 
 
-
+################################################################################
+# 5. Reference Loci Selection
+################################################################################
+refselector -p -ip data outgroup  -op -o outgroup -m 0 -nsize 250
+refselector -p -ip data ringroup -op -o rndingroup -m 2 -nsize 250
 ################################################################################
 # STEP 9. FASTQC
 ################################################################################

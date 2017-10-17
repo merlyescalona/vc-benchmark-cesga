@@ -20,8 +20,7 @@ experiment=U:1, 300
 individual=LN:1.2,1
 locus=LN:1.2,1
 [ngs-reads-art]
-qprof1=${folderNGSPROFILE}/csNGSProfile_hiseq2500_1.txt
-qprof2=${folderNGSPROFILE}/csNGSProfile_hiseq2500_2.txt
+ss=HS25
 l=150
 m=215
 s=50
