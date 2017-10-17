@@ -1,8 +1,8 @@
 #!/bin/bash
 #$ -v pipelinesName=ssp
 #$ -wd /home/merly/data
-#$ -o /home/merly/org.ind.fq.%a.o
-#$ -e /home/merly/org.ind.fq.%a.e
+#$ -o /home/merly/org.ind.fq.%t.o
+#$ -e /home/merly/org.ind.fq.%t.e
 #$ -N org.ind.fq
 
 # $1 - NGSMODE
