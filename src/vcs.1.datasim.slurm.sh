@@ -54,6 +54,48 @@ step3JOBID=$(sbatch -a 1-$numJobs $folderJOBS/vcs.3.indelible.array.sh $simphyRe
 step4JOBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step3JOBID $folderJOBS/vcs.4.ngsphy.sh)
 # Possible - Generate Folder structure for art
 ################################################################################
+# 4.1 DATA TRANSFERENCE
+################################################################################
+rsync -rP $replicateFOLDER/  merly@triploid.uvigo.es:/home/merly/data/$pipelinesName.$replicateID
+rsync -rP $LUSTRE/data/ngsphy.data/NGSphy_$pipelinesName.$replicateID/  merly@triploid.uvigo.es:/home/merly/data/NGSphy_$pipelinesName.$replicateID
+################################################################################
+# 4.2 DATA COMPRESSION LUSTRE
+################################################################################
+simphyReplicateID=1
+replicateID=$(printf "%05g" $simphyReplicateID)
+pipelinesName="ssp"
+replicateFOLDER="$LUSTRE/data/$pipelinesName.$replicateID"
+# replicateFOLDER="/home/merly/data/ssp.00001"
+for replicate in $(find $replicateFOLDER -maxdepth 1 -mindepth 1 -type d | sort); do
+    echo "$replicate"
+    for tree in $(find $replicate -name "g_trees*.trees" | sort); do
+        cat $tree >> $replicate/g_trees.all
+    done
+    echo "Gzipped trees file"
+    gzip $replicate/g_trees.all
+    echo "Removing all g_trees*.trees"
+    find $replicate -name "g_trees*.trees" | xargs rm
+done
+for replicate in $(find $replicateFOLDER -maxdepth 1 -mindepth 1 -type d | sort); do
+    echo "$replicate"
+    mkdir $replicate/FASTA $replicate/TRUE_FASTA
+    cd $replicate
+    mv *_TRUE.fasta TRUE_FASTA
+    mv *.fasta FASTA
+    tar -czf TRUE_FASTA.tar.gz TRUE_FASTA
+    tar -czf FASTA.tar.gz FASTA
+    rm -rf $replicate/TRUE_FASTA
+    rm -rf $replicate/FASTA
+done
+
+################################################################################
+# 5. Reference Loci Selection
+# @ triploid
+################################################################################
+step3.1JOBID=$(qsub -t $simphyReplicateID  $HOME/vc-benchmark-cesga/jobs/vcs.3.1.references.sh | awk '{ print $4}')
+
+################################################################################
+
 # 4. 0
 #-------------------------------------------------------------------------------
 # Compress gene tree files of the replicates into a single gtrees file.
@@ -85,9 +127,6 @@ for replicate in $(find $replicateFOLDER -maxdepth 1 -mindepth 1 -type d | sort)
     rm -rf $replicate/TRUE_FASTA
     rm -rf $replicate/FASTA
 done
-
-rsync -rP $replicateFOLDER/  merly@triploid.uvigo.es:/home/merly/data/$pipelinesName.$replicateID
-rsync -rP $LUSTRE/data/ngsphy.data/NGSphy_$pipelinesName.$replicateID/  merly@triploid.uvigo.es:/home/merly/data/NGSphy_$pipelinesName.$replicateID
 
 ################################################################################
 # 4.1 ART
@@ -142,50 +181,8 @@ for item in $(find /home/merly/data/NGSphy_${pipelinesName}.${replicateID}/scrip
     echo $item
     qsub $HOME/jobs/vcs.5.art.split.sh $item;
 done
-################################################################################
-# 6. Organize and compress read files (ssp.regroup.ngs.individuals)
-#-------------------------------------------------------------------------------
-replicateNum=2
-pipelinesName="ssp"
-replicatesNumDigits=5
-replicateID="$(printf "%0${replicatesNumDigits}g" $replicateNum)"
-# ngsphyReplicatePath="$LUSTRE/data/ngsphy.data/NGSphy_${pipelinesName}.${replicateID}"
-ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
-# reads/1/03/testwsimphy_1_03_data_7_R2.fq
-# NGSMODE=("PE150OWN" "PE150DFLT" "PE250DFLT" "SE150DFLT" "SE250DFLT")
-# MODE=("PAIRED", "SINGLE")
-mv $ngsphyReplicatePath/reads $ngsphyReplicatePath/reads_run
-find $ngsphyReplicatePath/individuals/ -mindepth 2 -maxdepth 2 -type d |sed 's/individuals/reads/g' | xargs mkdir -p
-
-NGSMODE="PE150OWN"
-MODE="PAIRED"
-for replicateST in 1 2 4 10; do
-    numIndividuals=$( cat $ngsphyReplicatePath/ind_labels/${pipelinesName}.${replicateID}.$(printf "%02g" $replicateST).individuals.csv | tail -n+2 | wc -l)
-    let numIndividuals=numIndividuals-1
-    mkdir -p $ngsphyReplicatePath/$NGSMODE/$(printf "%02g" $replicateST)
-    for individualID in $(seq 0 $numIndividuals); do
-        echo $(printf "%02g" $replicateST), $individualID
-        fqFilesR1=($(find $ngsphyReplicatePath/reads_run/$(printf "%02g" $replicateST) -name "*_${individualID}_R1.fq"))
-        cat ${fqFilesR1[@]} >  $ngsphyReplicatePath/$NGSMODE/$(printf "%02g" $replicateST)/${pipelinesName}_$(printf "%02g" $replicateST)_${individualID}_R1.fq
-        gzip $ngsphyReplicatePath/$NGSMODE/$(printf "%02g" $replicateST)/${pipelinesName}_$(printf "%02g" $replicateST)_${individualID}_R1.fq
-        if [[ MODE -eq "PAIRED" ]]; then
-            fqFilesR2=($(find $ngsphyReplicatePath/reads_run/$(printf "%02g" $replicateST) -name "*_${individualID}_R2.fq"))
-            cat ${fqFilesR2[@]} >  $ngsphyReplicatePath/$NGSMODE/$(printf "%02g" $replicateST)/${pipelinesName}_$(printf "%02g" $replicateST)_${individualID}_R2.fq
-            gzip $ngsphyReplicatePath/$NGSMODE/$(printf "%02g" $replicateST)/${pipelinesName}_$(printf "%02g" $replicateST)_${individualID}_R2.fq
-        fi
-    done
-done
-
-# rm -f reads
-################################################################################
-# 6. stats
 
 
-################################################################################
-# 5. Reference Loci Selection
-################################################################################
-refselector -p -ip data outgroup  -op -o outgroup -m 0 -nsize 250
-refselector -p -ip data ringroup -op -o rndingroup -m 2 -nsize 250
 ################################################################################
 # STEP 9. FASTQC
 ################################################################################
