@@ -31,11 +31,11 @@ HH="L:1.2,1" # Gene-by-family heterogeneity
 HG="F:GP" # Gene-by-lineage-specific rate heterogeneity modifier
 
 module purge
-module load gcc/5.3.0 simphy/1.0.2 sqlite/3.11.0   R/3.3.3 
+module load gcc/5.3.0 simphy/1.0.2 sqlite/3.11.0  R/3.3.3
 simphy  -rs $RS -rl $RL -su $SU -sb $SB -sl $SL -si $SI -sp $SP -st $ST -so $SO \
         -sg $SG -gp $GP -hh $HH -hg $HG  -v 1 \
         -o ${pipelinesName}.$(printf "%05g" ${SLURM_ARRAY_TASK_ID}) \
-        -cs 523911721 -od 1 -op 1 -oc 1 -on 1
+        -cs "$RANDOM$RANDOM" -od 1 -op 1 -oc 1 -on 1
 echo "Filtering replicates"
 simphyLOCATION="/mnt/lustre/scratch/home/uvi/be/mef/data/${pipelinesName}.$(printf "%05g" ${SLURM_ARRAY_TASK_ID})"
 Rscript $HOME/vc-benchmark-cesga/src/filtering.even.R \
