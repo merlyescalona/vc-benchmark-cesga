@@ -334,6 +334,9 @@ foreach my  $dir (@dirs)
 	my $partition_id=0;
 	my $prev_ptrees=0;
 	my $temp_length="";
+	# ME: Modification - changing variable locus size within replicate to just variable among replicates (loci same size within replicate)
+	$temp_length=$length[$partition_id];
+	$temp_length=~s/\$\((.*?)\)/parse_sampling($1)/ge;
 	for (my $tree_id=1; $tree_id<= scalar @files; $tree_id++)
 	{
 		if ($tree_id/$n_trees>$p_trees[$partition_id]+$prev_ptrees) #Next partition
@@ -341,8 +344,8 @@ foreach my  $dir (@dirs)
 			$prev_ptrees=$p_trees[$partition_id];
 			$partition_id+=1;
 		}
-		$temp_length=$length[$partition_id];
-		$temp_length=~s/\$\((.*?)\)/parse_sampling($1)/ge;
+		# $temp_length=$length[$partition_id];
+		# $temp_length=~s/\$\((.*?)\)/parse_sampling($1)/ge;
 		if ($unlinked_models{$part_model[$partition_id]})
 		{
 			$temp_model=$unlinked_models{$part_model[$partition_id]};

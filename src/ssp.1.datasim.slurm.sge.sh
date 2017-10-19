@@ -149,33 +149,30 @@ RSYNC
 ################################################################################
 #  Run 1 - PE 150 bp with custom profile
 ################################################################################
-replicateNum=1
+simphyReplicateID=1
 pipelinesName="ssp"
 replicatesNumDigits=5
-replicateID="$pipelinesName.$(printf "%0${replicatesNumDigits}g" $replicateNum)"
-cat ${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/\/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files/\/home\/merly\/csNGSProfile/g'  > ${replicateID}.triploid.sh
-triploidART="/home/merly/data/NGSphy_${replicateID}/scripts/${replicateID}.triploid.sh"
+replicateID="$pipelinesName.$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
 split -l 10000 -d -a 2 ${replicateID}.triploid.sh ${replicateID}.art.commands.
 for file in $(ls ${replicateID}.art.commands*); do    mv $file "$file.sh"; done
-for item in $(find /home/merly/data/NGSphy_${replicateID}/scripts/ -name "${replicateID}.art.commands*" | sort); do
-    echo $item
-    qsub $HOME/jobs/vcs.5.art.split.sh $item;
-done
+
 ################################################################################
 #  Runs with DEFAULT PROFILES
 ################################################################################
-replicateNum=1
+simphyReplicateID=2
 pipelinesName="ssp"
 replicatesNumDigits=5
-replicateID="$(printf "%0${replicatesNumDigits}g" $replicateNum)"
+replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
 # ngsphyReplicatePath="$LUSTRE/data/ngsphy.data/NGSphy_${pipelinesName}.${replicateID}"
 ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
 # This is to remove the profiles leaving PE150
+# triploidART=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.triploid.sh # CUSTOM PROFILE
 triploidARTSE150=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.triploid.HS25.SE.150.sh
-triploidARTSE250=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.triploid.HS25.SE.250.sh
 triploidARTPE150=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.triploid.HS25.PE.150.sh
+triploidARTSE250=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.triploid.HS25.SE.250.sh
 triploidARTPE250=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.triploid.HS25.PE.250.sh
 # This is to remove the profiles and the paired end
+# cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/\/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files/\/home\/merly\/csNGSProfile/g'  > $triploidART
 cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads_run_PE_150_DFLT/g' | sed 's/--qprof1 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_1.txt --qprof2 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_2.txt/ -ss HS25/g'  > $triploidARTPE150
 cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads_run_SE_150_DFLT/g' | sed 's/--qprof1 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_1.txt --qprof2 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_2.txt/ -ss HS25/g' | sed 's/ -p / /g' >  $triploidARTSE150
 cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads_run_PE_250_DFLT/g' | sed 's/--qprof1 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_1.txt --qprof2 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_2.txt/ -ss HS25/g' | sed 's/-l 150/-l 250/g' > $triploidARTPE250
@@ -185,45 +182,61 @@ cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/m
 
 cd /home/merly/data/NGSphy_${pipelinesName}.${replicateID}/scripts/
 split -l 10000 -d -a 2 $triploidARTSE150 $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.HS25.SE.150.art.commands.
-split -l 10000 -d -a 2 $triploidARTPE150 $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.HS25.SE.250.art.commands.
-split -l 10000 -d -a 2 $triploidARTSE250 $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.HS25.PE.150.art.commands.
+split -l 10000 -d -a 2 $triploidARTPE150 $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.HS25.PE.150.art.commands.
+split -l 10000 -d -a 2 $triploidARTSE250 $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.HS25.SE.250.art.commands.
 split -l 10000 -d -a 2 $triploidARTPE250 $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.HS25.PE.250.art.commands.
 for file in $(ls $ngsphyReplicatePath/scripts/*.art.commands*); do    mv $file "$file.sh"; done
 
+################################################################################
 # Generate folder structure for all the possible read scenarios
+################################################################################
 replicates=($(ls $ngsphyReplicatePath/reads))
 for item in ${replicates[*]}; do
-    numLoc=$(ls $item| wc -l);
+    numLoc=$(ls $ngsphyReplicatePath/reads/$item| wc -l);
     for loc in $(seq 1 $numLoc); do
-        mkdir - p $ngsphyReplicatePath/reads_run_PE_150_DFLT/$item/$(printf "%04g" $loc);
-        mkdir - p $ngsphyReplicatePath/reads_run_SE_150_DFLT/$item/$(printf "%04g" $loc);
-        mkdir - p $ngsphyReplicatePath/reads_run_SE_250_DFLT/$item/$(printf "%04g" $loc);
-        mkdir - p $ngsphyReplicatePath/reads_run_PE_250_DFLT/$item/$(printf "%04g" $loc);
+        echo "$item/$loc"
+        mkdir -p $ngsphyReplicatePath/reads_run_PE_150_DFLT/$item/$(printf "%04g" $loc);
+        mkdir -p $ngsphyReplicatePath/reads_run_SE_150_DFLT/$item/$(printf "%04g" $loc);
+        mkdir -p $ngsphyReplicatePath/reads_run_SE_250_DFLT/$item/$(printf "%04g" $loc);
+        mkdir -p $ngsphyReplicatePath/reads_run_PE_250_DFLT/$item/$(printf "%04g" $loc);
     done
 done
 ################################################################################
+# LAUNCHING JOBS FOR ART GENERATION
+################################################################################
+# for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.art.commands*" | sort); do
+#     echo $item
+#     qsub $HOME/vc-benchmark-cesga/jobs/vcs.5.art.split.sh $item;
+# done
 for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.HS25.PE.150.art.commands*" | sort); do
     echo $item
-    qsub $HOME/jobs/vcs.5.art.split.sge.sh $item;
+    qsub $HOME/vc-benchmark-cesga/jobs/vcs.5.art.split.sge.sh $item;
 done
 for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.HS25.SE.150.art.commands*" | sort); do
     echo $item
-    qsub $HOME/jobs/vcs.5.art.split.sge.sh $item;
+    qsub $HOME/vc-benchmark-cesga/jobs/vcs.5.art.split.sge.sh $item;
 done
 for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.HS25.SE.250.art.commands*" | sort); do
     echo $item
-    qsub $HOME/jobs/vcs.5.art.split.sge.sh $item;
+    qsub $HOME/vc-benchmark-cesga/jobs/vcs.5.art.split.sge.sh $item;
 done
-for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.HS25.SE.250.art.commands*" | sort); do
+for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.HS25.PE.250.art.commands*" | sort); do
     echo $item
-    qsub $HOME/jobs/vcs.5.art.split.sge.sh $item;
+    qsub $HOME/vc-benchmark-cesga/jobs/vcs.5.art.split.sge.sh $item;
 done
 ################################################################################
-# ORganization of individual reads
+# ORGANIZATION OF READS PER INDIVIDUALS
 ################################################################################
-for replicateST in ${replicates[*]}; do
-    qsub -t $simphyReplicateID $HOME/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh PE150OWN PAIRED $replicateST reads_run
-done
+# for replicateST in ${replicates[*]}; do
+#     qsub -t $simphyReplicateID $HOME/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh PE150OWN PAIRED $replicateST reads_run
+# done
+simphyReplicateID=1
+pipelinesName="ssp"
+replicatesNumDigits=5
+replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
+# ngsphyReplicatePath="$LUSTRE/data/ngsphy.data/NGSphy_${pipelinesName}.${replicateID}"
+ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
+replicates=($(ls $ngsphyReplicatePath/reads))
 for replicateST in ${replicates[*]}; do
     qsub -t $simphyReplicateID $HOME/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh PE150DFLT PAIRED $replicateST reads_run_PE_150_DFLT
 done
