@@ -17,7 +17,7 @@ referencesReplicatePath="$HOME/data/references/references.${pipelinesName}.${rep
 ################################################################################
 distanceReference=("outgroup" "rndingroup")
 sizes=("300" "500")
-replicates=($(ls $ngsphyReplicatePath/reads))
+replicates=($(ls $ngsphyReplicatePath/${profileFOLDER}))
 for distRefID in ${distanceReference[*]}; do
     for sizeID in ${sizes[*]}; do
         for replicateST in ${replicates[*]}; do
