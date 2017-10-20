@@ -22,7 +22,7 @@ MODULE_INSTALL_PERL
 # Folder paths
 ################################################################################
 source $HOME/vc-benchmark-cesga/src/vcs.variables.sh
-simphyReplicateID=3
+simphyReplicateID=4
 ################################################################################
 # 0. Folder structure
 ################################################################################
@@ -56,6 +56,9 @@ step4JOBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step3JOBID $fold
 ################################################################################
 # 4.1 DATA TRANSFERENCE
 ################################################################################
+replicateID=$(printf "%05g" $simphyReplicateID)
+pipelinesName="ssp"
+replicateFOLDER="$LUSTRE/data/$pipelinesName.$replicateID"
 rsync -rP $replicateFOLDER/  merly@triploid.uvigo.es:/home/merly/data/$pipelinesName.$replicateID
 rsync -rP $LUSTRE/data/ngsphy.data/NGSphy_$pipelinesName.$replicateID/  merly@triploid.uvigo.es:/home/merly/data/NGSphy_$pipelinesName.$replicateID
 ################################################################################
@@ -159,7 +162,7 @@ for file in $(ls ${replicateID}.art.commands*); do    mv $file "$file.sh"; done
 ################################################################################
 #  Runs with DEFAULT PROFILES
 ################################################################################
-simphyReplicateID=1
+simphyReplicateID=2
 pipelinesName="ssp"
 replicatesNumDigits=5
 replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
@@ -177,8 +180,6 @@ cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/m
 cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads_run_SE_150_DFLT/g' | sed 's/--qprof1 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_1.txt --qprof2 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_2.txt/ -ss HS25/g' | sed 's/ -p / /g' >  $triploidARTSE150
 cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads_run_PE_250_DFLT/g' | sed 's/--qprof1 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_1.txt --qprof2 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_2.txt/ -ss MSv3/g' | sed 's/-l 150/-l 250/g' | sed 's/-m 215 -s 50/-m 375 -s 100/g' > $triploidARTPE250
 cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads_run_SE_250_DFLT/g' | sed 's/--qprof1 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_1.txt --qprof2 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_2.txt/ -ss MSv3/g' | sed 's/-l 150/-l 250/g' | sed 's/-m 215 -s 50/-m 375 -s 100/g' | sed 's/ -p / /g' >  $triploidARTSE250
-
-
 
 cd /home/merly/data/NGSphy_${pipelinesName}.${replicateID}/scripts/
 split -l 10000 -d -a 2 $triploidART $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.CUSTOM.PE.150.art.commands.
@@ -244,8 +245,6 @@ done
 for replicateST in ${replicates[*]}; do
     qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh SE150DFLT SINGLE $replicateST reads_run_SE_150_DFLT
 done
-
-
 for replicateST in ${replicates[*]}; do
     qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh SE250DFLT SINGLE $replicateST reads_run_SE_250_DFLT
 done
