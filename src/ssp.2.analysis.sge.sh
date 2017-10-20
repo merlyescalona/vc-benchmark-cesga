@@ -36,8 +36,9 @@ qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analys
 ################################################################################
 # 3. MAPPINGS
 ################################################################################
-profiles=("PE150OWN" "PE150DFLT" "SE150DFLT" "PE250DFLT" "SE250DFLT")
+profiles=("PE150OWN")#"PE150DFLT" "SE150DFLT" "PE250DFLT" "SE250DFLT")
 for profileFOLDER in ${profiles[*]};do
     numJobs=$(find "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/${pipelinesName}.${replicateID}.${profileFOLDER}.bwa.commands.*" -type f | wc -l );
-    qsub -t 1-$numJobs  $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.3.sh "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/${pipelinesName}.${replicateID}.${profileFOLDER}.bwa.commands.*"
+    echo $numJobs
+    # qsub -t 1-$numJobs  $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.3.sh "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/${pipelinesName}.${replicateID}.${profileFOLDER}.bwa.commands.*"
 done
