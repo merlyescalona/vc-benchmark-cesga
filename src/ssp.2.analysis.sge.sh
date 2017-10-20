@@ -10,7 +10,7 @@
 ################################################################################
 # Folder paths
 ################################################################################
-source $HOME/vc-benchmark-cesga/src/vcs.variables.sh
+source $HOME/src/vc-benchmark-cesga/src/vcs.variables.sh
 ################################################################################
 simphyReplicateID=1
 pipelinesName="ssp"
@@ -20,5 +20,5 @@ ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
 simphyReplicatePath="$HOME/data/${pipelinesName}.${replicateID}"
 referencesReplicatePath="$HOME/data/references/references.${pipelinesName}.${replicateID}*"
 for fastaFile in $(find $referencesReplicatePath  -name *.fasta); do
-    
+    qsub $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.1.sh $fastaFile
 done
