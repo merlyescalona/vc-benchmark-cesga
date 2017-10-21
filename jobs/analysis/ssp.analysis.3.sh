@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -wd /home/merly/data
-#$ -o /home/merly/output/ssp.analysis.2.o
-#$ -e /home/merly/error/ssp.analysis.2.e
+#$ -o /home/merly/output/ssp.analysis.3.o
+#$ -e /home/merly/error/ssp.analysis.3.e
 #$ -pe threaded 4
 #$ -N bwa
 module purge

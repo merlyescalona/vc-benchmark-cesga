@@ -41,6 +41,7 @@ step1JOBID=$(sbatch -a $simphyReplicateID $folderJOBS/vcs.1.simphy.sh | awk '{ p
 # output files in order to keep track of every thing
 ################################################################################
 step2JOBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step1JOBID $folderJOBS/vcs.2.wrapper.sh | awk '{ print $4}')
+
 ################################################################################
 # 3. INDELIBLE CALLS
 ################################################################################
@@ -48,6 +49,13 @@ step2JOBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step1JOBID $fold
 # Need to filter the species tree replicates that do not have ninds % 2==0
 numJobs=$(wc -l $HOME/vc-benchmark-cesga/files/${pipelinesName}.$(printf "%05g" $simphyReplicateID).indelible.folders.txt | awk '{ print $1}')
 step3JOBID=$(sbatch -a 1-$numJobs $folderJOBS/vcs.3.indelible.array.sh $simphyReplicateID | awk '{ print $4}')
+#-------------------------------------------------------------------------------
+# To check num fasta files and trees in indelible folders
+indelibleFolders="$HOME/vc-benchmark-cesga/files/${pipelinesName}.$(printf "%05g" $simphyReplicateID).indelible.folders.txt"
+for item in $(cat $indelibleFolders);do
+    cd $LUSTRE/data/${pipelinesName}.$(printf "%05g" $simphyReplicateID)/$(printf "%02g" $item)
+    echo -e "$(printf "%02g" $item): gt $(ls g_trees* | wc -l)\tFASTA $(ls *.fasta | grep TRUE | wc -l)\tTRUEFASTA $(ls *TRUE.fasta | wc -l)"
+done
 ################################################################################
 # 4. ngsphy
 ################################################################################
@@ -252,15 +260,10 @@ for replicateST in ${replicates[*]}; do
     qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh PE250DFLT PAIRED $replicateST reads_run_PE_250_DFLT
 done
 
-
-
-
-
-
-
-
-
-
+# To check status of the org.fq.ind jobs
+for item in $(qstat | grep org  | awk '{print $1}'); do
+    echo "$item, $(qstat -j $item | grep job_args)";
+done
 
 
 
