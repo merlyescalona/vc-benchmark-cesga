@@ -177,17 +177,15 @@ replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
 # ngsphyReplicatePath="$LUSTRE/data/ngsphy.data/NGSphy_${pipelinesName}.${replicateID}"
 ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
 # This is to remove the profiles leaving PE150
-triploidART=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.triploid.sh # CUSTOM PROFILE
 triploidARTSE150=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.triploid.HS25.SE.150.sh
 triploidARTPE150=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.triploid.HS25.PE.150.sh
 triploidARTSE250=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.triploid.MSv3.SE.250.sh
 triploidARTPE250=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.triploid.MSv3.PE.250.sh
 # This is to remove the profiles and the paired end
-cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/\/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files/\/home\/merly\/csNGSProfile/g'  > $triploidART
-cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads_run_PE_150_DFLT/g' | sed 's/--qprof1 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_1.txt --qprof2 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_2.txt/ -ss HS25/g'  > $triploidARTPE150
-cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads_run_SE_150_DFLT/g' | sed 's/--qprof1 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_1.txt --qprof2 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_2.txt/ -ss HS25/g' | sed 's/ -p / /g' >  $triploidARTSE150
-cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads_run_PE_250_DFLT/g' | sed 's/--qprof1 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_1.txt --qprof2 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_2.txt/ -ss MSv3/g' | sed 's/-l 150/-l 250/g' | sed 's/-m 215 -s 50/-m 375 -s 100/g' > $triploidARTPE250
-cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads/--out \/home\/merly\/data\/NGSphy_ssp.00001\/reads_run_SE_250_DFLT/g' | sed 's/--qprof1 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_1.txt --qprof2 \/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files\/csNGSProfile_hiseq2500_2.txt/ -ss MSv3/g' | sed 's/-l 150/-l 250/g' | sed 's/-m 215 -s 50/-m 375 -s 100/g' | sed 's/ -p / /g' >  $triploidARTSE250
+cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/--out \/home\/merly\/data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads/--out \/home\/merly\/data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads_run_PE_150_DFLT/g' > $triploidARTPE150
+cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/--out \/home\/merly\/data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads/--out \/home\/merly\/data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads_run_SE_150_DFLT/g' | sed 's/ -p / /g' >  $triploidARTSE150
+cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/--out \/home\/merly\/data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads/--out \/home\/merly\/data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads_run_PE_250_DFLT/g' | sed 's/ -ss HS25/ -ss MSv3/g' | sed 's/-l 150/-l 250/g' | sed 's/-m 215 -s 50/-m 375 -s 100/g' > $triploidARTPE250
+cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/--out \/home\/merly\/data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads/--out \/home\/merly\/data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads_run_SE_250_DFLT/g' | sed 's/ -ss HS25/ -ss MSv3/g' | sed 's/-l 150/-l 250/g' | sed 's/-m 215 -s 50/-m 375 -s 100/g' | sed 's/ -p / /g' >  $triploidARTSE250
 
 cd /home/merly/data/NGSphy_${pipelinesName}.${replicateID}/scripts/
 split -l 10000 -d -a 2 $triploidART $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.CUSTOM.PE.150.art.commands.
@@ -240,7 +238,7 @@ done
 # for replicateST in ${replicates[*]}; do
 #     qsub -t $simphyReplicateID $HOME/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh PE150OWN PAIRED $replicateST reads_run
 # done
-simphyReplicateID=1
+simphyReplicateID=2
 pipelinesName="ssp"
 replicatesNumDigits=5
 replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
