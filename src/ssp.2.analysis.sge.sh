@@ -29,7 +29,7 @@ done
 # 2. GENERATION OF BWA COMMAND LINESs
 ################################################################################
 # qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.2.sh PE150OWN HiSeq2500
-# qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.2.sh PE150DFLT HiSeq2500
+qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.2.sh PE150DFLT HiSeq2500
 qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.2.sh SE150DFLT HiSeq2500
 qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.2.sh PE250DFLT MiSeqV3
 qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.2.sh SE250DFLT MiSeqV3
@@ -54,7 +54,12 @@ qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analys
 ################################################################################
 # 5. BAMMING SORTING
 ################################################################################
-
+profiles=("PE250DFLT" "SE250DFLT") # ("SE150DFLT") # ("PE150DFLT") # ("PE150OWN") #
+for profileFOLDER in ${profiles[*]};do
+    numJobs=$(find "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/" -name "${pipelinesName}.${replicateID}.${profileFOLDER}.samtools.commands.*" -type f | wc -l );
+    echo $numJobs
+    qsub -t 1-$numJobs  $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.5.sh "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/${pipelinesName}.${replicateID}.${profileFOLDER}.samtools.commands"
+done
 
 
 
