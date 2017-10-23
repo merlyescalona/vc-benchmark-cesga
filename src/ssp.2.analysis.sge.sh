@@ -45,16 +45,16 @@ done
 ################################################################################
 # 4. Generating BAMMING SORTING commands
 ################################################################################
-qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.4.sh PE150DOWN HiSeq2500
-qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.4.sh PE150DFLT HiSeq2500
-qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.4.sh SE150DFLT HiSeq2500
-qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.4.sh PE250DFLT MiSeqV3
-qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.4.sh SE250DFLT MiSeqV3
+qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.4.sh PE150DOWN
+qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.4.sh PE150DFLT
+qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.4.sh SE150DFLT
+qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.4.sh PE250DFLT
+qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.4.sh SE250DFLT
 
 ################################################################################
 # 5. BAMMING SORTING
 ################################################################################
-profiles=("PE250DFLT" "SE250DFLT") # ("SE150DFLT") # ("PE150DFLT") # ("PE150OWN") #
+profiles=("PE150DFLT" "PE150OWN") #("PE250DFLT" "SE250DFLT") #  ("SE150DFLT") #
 for profileFOLDER in ${profiles[*]};do
     numJobs=$(find "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/" -name "${pipelinesName}.${replicateID}.${profileFOLDER}.samtools.commands.*" -type f | wc -l );
     echo $numJobs
