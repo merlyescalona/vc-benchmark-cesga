@@ -116,7 +116,7 @@ for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${repli
     echo $item >> $artFilesReplicate
 done
 nJobs=$(cat $artFilesReplicate |wc -l | awk '{print $1}')
-sbatch -a 1-$nJobs $folderJOBS/1.datasim/ssp.7.art.slurm.sh $item;
+step7JOBID=$(sbatch -a 1-$nJobs $folderJOBS/1.datasim/ssp.7.art.slurm.sh $artFilesReplicate | awk '{print $1}')
 
 ########################################################################
 ##############         SGE                    ##########################

@@ -12,6 +12,6 @@
 
 echo -e "[$(date)]\nDefinition"
 module load gcc/5.3.0 art/2016-06-05
-filename=$(awk 'NR==${SLURM_ARRAY_TASK_ID}' $1)
+filename=$(awk "NR==$SLURM_ARRAY_TASK_ID" $1)
 bash $filename
 module unload gcc/5.3.0 art/2016-06-05
