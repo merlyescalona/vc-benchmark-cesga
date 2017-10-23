@@ -22,7 +22,7 @@ MODULE_INSTALL_PERL
 # Folder paths
 ################################################################################
 source $HOME/vc-benchmark-cesga/src/vcs.variables.sh
-simphyReplicateID=2
+simphyReplicateID=3
 ################################################################################
 # 0. Folder structure
 ################################################################################

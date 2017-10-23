@@ -9,6 +9,6 @@ module load gcc/5.2.0 xz bio/samtools
 ################################################################################
 correctID=$SGE_TASK_ID
 let correctID=correctID-1
-filename="$1.$(printf "%03g" $correctID).sh"
+filename="$1.$(printf "%04g" $correctID).sh"
 bash $filename
 module unload  gcc/5.2.0 xz bio/samtools
