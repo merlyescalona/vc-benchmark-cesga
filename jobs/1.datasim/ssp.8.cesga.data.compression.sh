@@ -9,7 +9,7 @@
 #
 #SBATCH --mail-type=begin,end
 #SBATCH --mail-user=escalona10@gmail.com
-#SBATCH --partition=shared
+#SBATCH --partition=shared,gpu-shared-k2
 #SBATCH --qos=shared
 ################################################################################
 simphyReplicateID=$SLURM_ARRAY_TASK_ID

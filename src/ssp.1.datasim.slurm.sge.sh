@@ -32,17 +32,17 @@ rsync -rP $LUSTRE/data/ngsphy.data/NGSphy_ssp.00002/  merly@triploid.uvigo.es:/h
 cat ssp.00002.sh | sed 's/\/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data/\/home\/merly\/data/g' | sed 's/\/home\/uvi\/be\/mef\/vc-benchmark-cesga\/files/\/home\/merly\/csNGSProfile/g'  > ssp.00002.triploid.sh
 RSYNC
 ################################################################################
-# Folder paths
-################################################################################
-source $HOME/vc-benchmark-cesga/src/vcs.variables.sh
-CLUSTER_ENV="SLURM"
-simphyReplicateID=4
-################################################################################
 # 0. Folder structure
 ################################################################################
 # git clone https://merlyescalona@github.com/merlyescalona/vc-benchmark-cesga.git $HOME/vc-benchmark-cesga
 # git clone https://merlyescalona@github.com/merlyescalona/refselector.git $HOME/src/refselector
 # mkdir $folderDATA  $folderOUTPUT  $folderERROR  $folderINFO
+################################################################################
+# Folder paths
+################################################################################
+source $HOME/vc-benchmark-cesga/src/vcs.variables.sh
+CLUSTER_ENV="SLURM"
+simphyReplicateID=4
 ################################################################################
 # 1. SIMPHY
 ################################################################################

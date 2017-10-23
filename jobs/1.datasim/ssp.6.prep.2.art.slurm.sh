@@ -19,10 +19,10 @@ replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
 # ngsphyReplicatePath="$LUSTRE/data/ngsphy.data/NGSphy_${pipelinesName}.${replicateID}"
 ngsphyReplicatePath="$LUSTRE/data/ngsphy.data/NGSphy_${pipelinesName}.${replicateID}"
 # This is to remove the profiles leaving PE150
-triploidARTSE150=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.triploid.HS25.SE.150.sh
-triploidARTPE150=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.triploid.HS25.PE.150.sh
-triploidARTSE250=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.triploid.MSv3.SE.250.sh
-triploidARTPE250=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.triploid.MSv3.PE.250.sh
+triploidARTSE150=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.HS25.SE.150.sh
+triploidARTPE150=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.HS25.PE.150.sh
+triploidARTSE250=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.MSv3.SE.250.sh
+triploidARTPE250=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.MSv3.PE.250.sh
 # This is to remove the profiles and the paired end
 cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/--out \/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads/--out \/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads_run_PE_150_DFLT/g' > $triploidARTPE150
 cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/--out \/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads/--out \/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads_run_SE_150_DFLT/g' | sed 's/ -p / /g' >  $triploidARTSE150
