@@ -42,7 +42,7 @@ RSYNC
 ################################################################################
 source $HOME/vc-benchmark-cesga/src/vcs.variables.sh
 CLUSTER_ENV="SLURM"
-simphyReplicateID=4
+simphyReplicateID=3
 ################################################################################
 # 1. SIMPHY
 ################################################################################
@@ -96,7 +96,7 @@ fi
 ########################################################################
 # LAUNCHING JOBS FOR ART GENERATION
 ########################################################################
-simphyReplicateID=4
+simphyReplicateID=3
 pipelinesName="ssp"
 replicatesNumDigits=5
 replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
