@@ -55,11 +55,12 @@ qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analys
 # 5. BAMMING SORTING
 ################################################################################
 profiles=("PE150DFLT" "PE150OWN" "SE150DFLT") #("PE250DFLT" "SE250DFLT") #  ("SE150DFLT") #
+bammingFile=$HOME/src/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.p1.sh
 for profileFOLDER in ${profiles[*]};do
-    numJobs=$(find "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/" -name "${pipelinesName}.${replicateID}.${profileFOLDER}.samtools.commands.*" -type f | wc -l );
-    echo $numJobs,$profileFOLDER
-    qsub -t 1-$numJobs  $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.5.sh "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/${pipelinesName}.${replicateID}.${profileFOLDER}.samtools.commands"
+    echo (find "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/" -name "${pipelinesName}.${replicateID}.${profileFOLDER}.samtools.commands.*" -type f  | sort) > $bammingFile
 done
+numJobs=$(find "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/" -name "${pipelinesName}.${replicateID}.${profileFOLDER}.samtools.commands.*" -type f | wc -l );
+qsub -t 1-$numJobs  $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.5.sh "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/${pipelinesName}.${replicateID}.${profileFOLDER}.samtools.commands"
 
 
 

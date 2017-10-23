@@ -27,7 +27,7 @@ for distRefID in ${distanceReference[*]}; do
         outfile="$HOME/data/mappings/${pipelinesName}.${replicateID}/$profileFOLDER/$replicateST/${pipelinesName}.${replicateID}.$replicateST.${indID}.${distRefID}.${sizeID}.sam"
         outputFILE="$(basename $outfile .sam).sorted.bam"
         outputDIR="$(dirname $outfile)"
-        echo "samtools view -bSh $outfile | samtools sort - -o $outputDIR/$outputFILE -@ 2" >> "${script}/${pipelinesName}.${replicateID}.${profileFOLDER}.samtools.sh"
+        echo "samtools view -bSh $outfile | samtools sort - -o $outputDIR/$outputFILE -@ 12" >> "${script}/${pipelinesName}.${replicateID}.${profileFOLDER}.samtools.sh"
         echo "samtools index $outputDIR/$outputFILE" >> "${script}/${pipelinesName}.${replicateID}.${profileFOLDER}.samtools.sh"
         echo "rm $outfile" >> "${script}/${pipelinesName}.${replicateID}.${profileFOLDER}.samtools.sh"
       done
