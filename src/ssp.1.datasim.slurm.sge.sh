@@ -42,7 +42,7 @@ RSYNC
 ################################################################################
 source $HOME/vc-benchmark-cesga/src/vcs.variables.sh
 CLUSTER_ENV="SLURM"
-simphyReplicateID=3
+simphyReplicateID=4
 ################################################################################
 # 1. SIMPHY
 ################################################################################
@@ -75,12 +75,12 @@ CHECK_NUM_FILES_INDELIBLE
 ########################################################################
 # 4. Reference Loci Selection
 ########################################################################
-step4JOBID=$(qsub -t $simphyReplicateID  --dependency=afterok:$step3JOBID $folderJOBS/1.datasim/ssp.4.references.slurm.sh | awk '{ print $4}')
+step4JOBID=$(sbatch -t $simphyReplicateID  --dependency=afterok:$step3JOBID $folderJOBS/1.datasim/ssp.4.references.slurm.sh | awk '{ print $4}')
 ########################################################################
 # 5. NGSPHY
 ########################################################################
-step5JOBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step3JOBID $folderJOBS/1.datasim/ssp.5.ngsphy.sh)
-step8JOBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step5JOBID $folderJOBS/1.datasim/ssp.8.cesga.data.compression.sh)
+step5JOBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step3JOBID $folderJOBS/1.datasim/ssp.5.ngsphy.sh | awk '{ print $4}')
+step8JOBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step5JOBID $folderJOBS/1.datasim/ssp.8.cesga.data.compression.sh | awk '{ print $4}')
 ########################################################################
 ######## SLURM                  ########################################
 ########################################################################
@@ -91,7 +91,7 @@ step8JOBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step5JOBID $fold
 # 6.1 SLURM PREP2ART - Generation of folder structure for all art commands per PROFILES
 #-----------------------------------------------------------------------
 if [[ $CLUSTER_ENV -eq "SLURM" ]]; then
-    step6OBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step5JOBID $folderJOBS/1.datasim/ssp.6.prep.2.art.slurm.sh)
+    step6OBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step5JOBID $folderJOBS/1.datasim/ssp.6.prep.2.art.slurm.sh | awk '{ print $4}')
 fi
 ########################################################################
 # LAUNCHING JOBS FOR ART GENERATION
@@ -100,24 +100,23 @@ simphyReplicateID=3
 pipelinesName="ssp"
 replicatesNumDigits=5
 replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
-ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
+ngsphyReplicatePath="$LUSTRE/data/ngsphy.data/NGSphy_${pipelinesName}.${replicateID}"
 replicates=($(ls $ngsphyReplicatePath/reads))
+artFilesReplicate="$HOME/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.art.commands.files.txt"
 for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.HS25.PE.150.art.commands*" | sort); do
-    echo $item
-    sbatch $folderJOBS/1.datasim/ssp.6.art.slurm.sh $item;
+    echo $item >> $artFilesReplicate
 done
 for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.HS25.SE.150.art.commands*" | sort); do
-    echo $item
-    sbatch $folderJOBS/1.datasim/ssp.6.art.slurm.sh $item;
+    echo $item >> $artFilesReplicate
 done
 for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.MSv3.SE.250.art.commands*" | sort); do
-    echo $item
-    sbatch $folderJOBS/1.datasim/ssp.6.art.slurm.sh $item;
+    echo $item >> $artFilesReplicate
 done
 for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.MSv3.PE.250.art.commands*" | sort); do
-    echo $item
-    sbatch $folderJOBS/1.datasim/ssp.6.art.slurm.sh $item;
+    echo $item >> $artFilesReplicate
 done
+nJobs=$(cat $artFilesReplicate |wc -l | awk '{print $1}')
+sbatch -a 1-$nJobs $folderJOBS/1.datasim/ssp.7.art.slurm.sh $item;
 
 ########################################################################
 ##############         SGE                    ##########################

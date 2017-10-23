@@ -2,7 +2,7 @@
 #SBATCH -n 1
 #SBATCH -t 10:00:00
 #
-#SBATCH --job-name=ngsphy
+#SBATCH --job-name=refselector
 #SBATCH --output=/mnt/lustre/scratch/home/uvi/be/mef/output/ssp.4.%a.o
 #SBATCH --error=/mnt/lustre/scratch/home/uvi/be/mef/error/ssp.4.%a.e
 #SBATCH --workdir=/mnt/lustre/scratch/home/uvi/be/mef/data/
