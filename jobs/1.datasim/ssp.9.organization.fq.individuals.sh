@@ -1,8 +1,8 @@
 #!/bin/bash
 #$ -v pipelinesName=ssp
 #$ -wd /home/merly/data
-#$ -o /home/merly/org.ind.fq.o
-#$ -e /home/merly/org.ind.fq.e
+#$ -o /home/merly/output/org.ind.fq.o
+#$ -e /home/merly/error/org.ind.fq.e
 #$ -N org.ind.fq
 
 # $1 - NGSMODE
@@ -30,9 +30,13 @@ for individualID in $(seq 0 $numIndividuals); do
     fqFilesR1=($(find $ngsphyReplicatePath/$readsFolderName/$replicateST -name "*_${individualID}_R1.fq"))
     cat ${fqFilesR1[*]} >  $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_$replicateST_${individualID}_R1.fq
     gzip $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_$replicateST_${individualID}_R1.fq
+
     if [[ MODE -eq "PAIRED" ]]; then
         fqFilesR2=($(find $ngsphyReplicatePath/$readsFolderName/$replicateST -name "*_${individualID}_R2.fq"))
         cat ${fqFilesR2[*]} >  $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_$replicateST_${individualID}_R2.fq
         gzip $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_$replicateST_${individualID}_R2.fq
     fi
 done
+
+echo "Deleting single FQ files "
+rm -rf $ngsphyReplicatePath/$readsFolderName/

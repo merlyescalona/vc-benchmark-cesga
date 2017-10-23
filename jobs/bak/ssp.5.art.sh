@@ -11,3 +11,12 @@
 #SBATCH --mail-user=escalona10@gmail.com
 #SBATCH --partition shared
 #SBATCH --qos=shared
+
+echo -e "[$(date)]\nDefinition"
+module load gcc/5.3.0 art
+for item in $(seq 1 $nlines);do
+    echo "$item"
+    command=$(awk -v x=$item "NR==x" $1)
+    $command
+done
+module load gcc/5.3.0 art

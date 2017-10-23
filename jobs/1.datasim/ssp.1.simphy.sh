@@ -20,8 +20,8 @@ RS="10" #number of species trees
 RL="U:100,3000" # Number of locus tree /= to number of gene tress (1 locus tree per gene tree)
 SB="L:-13.58,1.85" # Speciation rate - depends on SU and SI (species tree height and number of inds. per taxa/tips)
 SG="F:1" # tree wide generation time
-SI="U:2,10" #numIndTaxa
-SL="U:5,10" #Num. taxa
+SI="U:4,12" #numIndTaxa
+SL="U:5,12" #Num. taxa
 SO="F:1" # outgroupBranch length - This can be modified (LN:0,1)
 SP="F:10000" # Effective population size
 ST="U:5000000,20000000" # species tree heights

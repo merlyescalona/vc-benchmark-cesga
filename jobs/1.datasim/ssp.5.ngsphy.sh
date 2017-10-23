@@ -3,8 +3,8 @@
 #SBATCH -t 10:00:00
 #
 #SBATCH --job-name=ngsphy
-#SBATCH --output=/mnt/lustre/scratch/home/uvi/be/mef/output/vcs.4.%a.o
-#SBATCH --error=/mnt/lustre/scratch/home/uvi/be/mef/error/vcs.4.%a.e
+#SBATCH --output=/mnt/lustre/scratch/home/uvi/be/mef/output/ssp.5.%a.o
+#SBATCH --error=/mnt/lustre/scratch/home/uvi/be/mef/error/ssp.5.%a.e
 #SBATCH --workdir=/mnt/lustre/scratch/home/uvi/be/mef/data/
 #
 #SBATCH --mail-type=begin,end
@@ -28,10 +28,10 @@ if [ ! -d $LUSTRE/data/ngsphy.data ];then
 fi
 ################################################################################
 # PATHS
-ngsphySettingsGenerator="$HOME/vc-benchmark-cesga/src/vcs.write.ngsphy.sh"
+ngsphySettingsGenerator="$HOME/vc-benchmark-cesga/src/ssp.write.ngsphy.sh"
 folderNGSPROFILE="$HOME/vc-benchmark-cesga/files"
 ################################################################################
-# bash vcs.write.ngsphy pipelinesName idREPLICATE folderSIMPHY folderNGSPROFILE fileOUTPUT folderOUTPUT
+# bash ssp.write.ngsphy pipelinesName idREPLICATE folderSIMPHY folderNGSPROFILE fileOUTPUT folderOUTPUT
 echo "bash $ngsphySettingsGenerator $pipelinesName $replicateID $LUSTRE/data/$simphyFOLDER $folderNGSPROFILE $LUSTRE/data/ngsphy.settings/${simphyFOLDER}.txt $LUSTRE/data/ngsphy.data"
 bash $ngsphySettingsGenerator $pipelinesName $replicateID $LUSTRE/data/$simphyFOLDER $folderNGSPROFILE $LUSTRE/data/ngsphy.settings/${simphyFOLDER}.txt $LUSTRE/data/ngsphy.data
 ################################################################################

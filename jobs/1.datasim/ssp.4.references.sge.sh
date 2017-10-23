@@ -1,8 +1,8 @@
 #!/bin/bash
 #$ -v pipelinesName=ssp
 #$ -wd /home/merly/data
-#$ -o /home/merly/refselector.o
-#$ -e /home/merly/refselector.e
+#$ -o /home/merly/output/refselector.o
+#$ -e /home/merly/error/refselector.e
 #$ -N refselector
 simphyReplicateID=${SGE_TASK_ID}
 replicateID=$(printf "%05g" $simphyReplicateID)
