@@ -59,8 +59,8 @@ bammingFile=$HOME/src/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.p
 for profileFOLDER in ${profiles[*]};do
     find "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/" -name "${pipelinesName}.${replicateID}.${profileFOLDER}.samtools.commands.*" -type f  | sort  >> $bammingFile
 done
-numJobs=$(cat $bammingFile| wc -l );
-qsub -t 1-$numJobs  $HOME/src/vc-benchmark-cesga/jobs/analysis/ssp.analysis.5.sh "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/${pipelinesName}.${replicateID}.${profileFOLDER}.samtools.commands"
+numJobs=$(cat $bammingFile | wc -l )
+qsub -pe threaded 12 -t 1-$numJobs -hold_jid 645985-645987 $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.5.sh $bammingFile
 
 
 

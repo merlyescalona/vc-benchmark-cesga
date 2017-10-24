@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -n 1
-#SBATCH -t 12:00:00
+#SBATCH -t 20:00:00
 #
 #SBATCH --job-name=art
 #SBATCH --output=/mnt/lustre/scratch/home/uvi/be/mef/output/art.7.%a.o
