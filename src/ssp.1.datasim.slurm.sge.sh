@@ -122,16 +122,10 @@ step7JOBID=$(sbatch -a 1-$nJobs $folderJOBS/1.datasim/ssp.7.art.slurm.sh $artFil
 # ORGANIZATION OF READS PER INDIVIDUALS
 ################################################################################
 for replicateST in ${replicates[*]}; do
-    qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh PE150DFLT PAIRED $replicateST reads_run_PE_150_DFLT
-done
-for replicateST in ${replicates[*]}; do
-    qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh SE150DFLT SINGLE $replicateST reads_run_SE_150_DFLT
-done
-for replicateST in ${replicates[*]}; do
-    qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh SE250DFLT SINGLE $replicateST reads_run_SE_250_DFLT
-done
-for replicateST in ${replicates[*]}; do
-    qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh PE250DFLT PAIRED $replicateST reads_run_PE_250_DFLT
+    step9PE150DFLT=$(sbatch -a $simphyReplicateID --dependency=afterok:$step7JOBID $HOME/vc-benchmark-cesga/jobs/vcs.9.organization.fq.individuals.slurm.sh PE150DFLT PAIRED $replicateST reads_run_PE_150_DFLT | awk '{print $1}')
+    step9SE150DFLT=$(sbatch -a $simphyReplicateID --dependency=afterok:$step7JOBID $HOME/vc-benchmark-cesga/jobs/vcs.9.organization.fq.individuals.slurm.sh SE150DFLT SINGLE $replicateST reads_run_SE_150_DFLT | awk '{print $1}')
+    step9SE250DFLT=$(sbatch -a $simphyReplicateID --dependency=afterok:$step7JOBID $HOME/vc-benchmark-cesga/jobs/vcs.9.organization.fq.individuals.slurm.sh SE250DFLT SINGLE $replicateST reads_run_SE_250_DFLT | awk '{print $1}')
+    step9PE250DFLT=$(sbatch -a $simphyReplicateID --dependency=afterok:$step7JOBID $HOME/vc-benchmark-cesga/jobs/vcs.9.organization.fq.individuals.slurm.sh PE250DFLT PAIRED $replicateST reads_run_PE_250_DFLT | awk '{print $1}')
 done
 
 
@@ -180,18 +174,10 @@ done
 ################################################################################
 # ORGANIZATION OF READS PER INDIVIDUALS
 ################################################################################
-for replicateST in ${replicates[*]}; do
-    qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh PE150DFLT PAIRED $replicateST reads_run_PE_150_DFLT
-done
-for replicateST in ${replicates[*]}; do
-    qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh SE150DFLT SINGLE $replicateST reads_run_SE_150_DFLT
-done
-for replicateST in ${replicates[*]}; do
-    qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh SE250DFLT SINGLE $replicateST reads_run_SE_250_DFLT
-done
-for replicateST in ${replicates[*]}; do
-    qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh PE250DFLT PAIRED $replicateST reads_run_PE_250_DFLT
-done
+step9PE150DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.9.organization.fq.individuals.sge.sh PE150DFLT PAIRED $replicateST reads_run_PE_150_DFLT | awk '{print $1}')
+step9SE150DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.9.organization.fq.individuals.sge.sh SE150DFLT SINGLE $replicateST reads_run_SE_150_DFLT | awk '{print $1}')
+step9SE250DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.9.organization.fq.individuals.sge.sh SE250DFLT SINGLE $replicateST reads_run_SE_250_DFLT | awk '{print $1}')
+step9PE250DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.9.organization.fq.individuals.sge.sh PE250DFLT PAIRED $replicateST reads_run_PE_250_DFLT | awk '{print $1}')
 
 # To check status of the org.fq.ind jobs
 for item in $(qstat | grep org  | awk '{print $1}'); do
