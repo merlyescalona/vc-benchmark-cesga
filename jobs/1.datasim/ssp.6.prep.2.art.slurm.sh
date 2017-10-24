@@ -23,7 +23,7 @@ triploidARTSE150=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.HS
 triploidARTPE150=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.HS25.PE.150.sh
 triploidARTSE250=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.MSv3.SE.250.sh
 triploidARTPE250=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.MSv3.PE.250.sh
-# This is to remove the profiles and the paired end
+# This is to remove the profiles and the paired endX
 cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/--out \/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads/--out \/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads_run_PE_150_DFLT/g' > $triploidARTPE150
 cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/--out \/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads/--out \/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads_run_SE_150_DFLT/g' | sed 's/ -p / /g' >  $triploidARTSE150
 cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/--out \/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads/--out \/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads_run_PE_250_DFLT/g' | sed 's/ -ss HS25/ -ss MSv3/g' | sed 's/-l 150/-l 250/g' | sed 's/-m 215 -s 50/-m 375 -s 100/g' > $triploidARTPE250
@@ -41,11 +41,12 @@ for file in $(ls $ngsphyReplicatePath/scripts/*.art.commands*); do    mv $file "
 replicates=($(ls $ngsphyReplicatePath/reads))
 for item in ${replicates[*]}; do
     numLoc=$(ls $ngsphyReplicatePath/reads/$item| wc -l);
+    numDigits=${#numLoc}
     for loc in $(seq 1 $numLoc); do
         echo "$item/$loc"
-        mkdir -p $ngsphyReplicatePath/reads_run_PE_150_DFLT/$item/$(printf "%04g" $loc);
-        mkdir -p $ngsphyReplicatePath/reads_run_SE_150_DFLT/$item/$(printf "%04g" $loc);
-        mkdir -p $ngsphyReplicatePath/reads_run_SE_250_DFLT/$item/$(printf "%04g" $loc);
-        mkdir -p $ngsphyReplicatePath/reads_run_PE_250_DFLT/$item/$(printf "%04g" $loc);
+        mkdir -p $ngsphyReplicatePath/reads_run_PE_150_DFLT/$item/$(printf "%0${numDigits}g" $loc);
+        mkdir -p $ngsphyReplicatePath/reads_run_SE_150_DFLT/$item/$(printf "%0${numDigits}g" $loc);
+        mkdir -p $ngsphyReplicatePath/reads_run_SE_250_DFLT/$item/$(printf "%0${numDigits}g" $loc);
+        mkdir -p $ngsphyReplicatePath/reads_run_PE_250_DFLT/$item/$(printf "%0${numDigits}g" $loc);
     done
 done

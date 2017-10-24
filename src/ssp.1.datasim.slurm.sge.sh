@@ -116,16 +116,16 @@ for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${repli
     echo $item >> $artFilesReplicate
 done
 nJobs=$(cat $artFilesReplicate |wc -l | awk '{print $1}')
-step7JOBID=$(sbatch -a 1-$nJobs $folderJOBS/1.datasim/ssp.7.art.slurm.sh $artFilesReplicate | awk '{print $1}')
+step7JOBID=$(sbatch -a 1-$nJobs $folderJOBS/1.datasim/ssp.7.art.slurm.sh $artFilesReplicate | awk '{print $4}')
 
 ################################################################################
 # ORGANIZATION OF READS PER INDIVIDUALS
 ################################################################################
 for replicateST in ${replicates[*]}; do
-    step9PE150DFLT=$(sbatch -a $simphyReplicateID --dependency=afterok:$step7JOBID $HOME/vc-benchmark-cesga/jobs/vcs.9.organization.fq.individuals.slurm.sh PE150DFLT PAIRED $replicateST reads_run_PE_150_DFLT | awk '{print $1}')
-    step9SE150DFLT=$(sbatch -a $simphyReplicateID --dependency=afterok:$step7JOBID $HOME/vc-benchmark-cesga/jobs/vcs.9.organization.fq.individuals.slurm.sh SE150DFLT SINGLE $replicateST reads_run_SE_150_DFLT | awk '{print $1}')
-    step9SE250DFLT=$(sbatch -a $simphyReplicateID --dependency=afterok:$step7JOBID $HOME/vc-benchmark-cesga/jobs/vcs.9.organization.fq.individuals.slurm.sh SE250DFLT SINGLE $replicateST reads_run_SE_250_DFLT | awk '{print $1}')
-    step9PE250DFLT=$(sbatch -a $simphyReplicateID --dependency=afterok:$step7JOBID $HOME/vc-benchmark-cesga/jobs/vcs.9.organization.fq.individuals.slurm.sh PE250DFLT PAIRED $replicateST reads_run_PE_250_DFLT | awk '{print $1}')
+    step9PE150DFLT=$(sbatch -a $simphyReplicateID --dependency=afterok:$step7JOBID $HOME/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.slurm.sh PE150DFLT PAIRED $replicateST reads_run_PE_150_DFLT | awk '{print $4}')
+    step9SE150DFLT=$(sbatch -a $simphyReplicateID --dependency=afterok:$step7JOBID $HOME/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.slurm.sh SE150DFLT SINGLE $replicateST reads_run_SE_150_DFLT | awk '{print $4}')
+    step9SE250DFLT=$(sbatch -a $simphyReplicateID --dependency=afterok:$step7JOBID $HOME/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.slurm.sh SE250DFLT SINGLE $replicateST reads_run_SE_250_DFLT | awk '{print $4}')
+    step9PE250DFLT=$(sbatch -a $simphyReplicateID --dependency=afterok:$step7JOBID $HOME/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.slurm.sh PE250DFLT PAIRED $replicateST reads_run_PE_250_DFLT | awk '{print $4}')
 done
 
 
