@@ -29,10 +29,10 @@ cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/--o
 cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/--out \/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads/--out \/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads_run_PE_250_DFLT/g' | sed 's/ -ss HS25/ -ss MSv3/g' | sed 's/-l 150/-l 250/g' | sed 's/-m 215 -s 50/-m 375 -s 100/g' > $triploidARTPE250
 cat $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.sh | sed 's/--out \/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads/--out \/mnt\/lustre\/scratch\/home\/uvi\/be\/mef\/data\/ngsphy.data\/NGSphy_'"${pipelinesName}"'.'"${replicateID}"'\/reads_run_SE_250_DFLT/g' | sed 's/ -ss HS25/ -ss MSv3/g' | sed 's/-l 150/-l 250/g' | sed 's/-m 215 -s 50/-m 375 -s 100/g' | sed 's/ -p / /g' >  $triploidARTSE250
 
-split -l 10000 -d -a 2 $triploidARTSE150 $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.HS25.SE.150.art.commands.
-split -l 10000 -d -a 2 $triploidARTPE150 $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.HS25.PE.150.art.commands.
-split -l 10000 -d -a 2 $triploidARTSE250 $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.MSv3.SE.250.art.commands.
-split -l 10000 -d -a 2 $triploidARTPE250 $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.MSv3.PE.250.art.commands.
+split -l 5000 -d -a 5 $triploidARTSE150 $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.HS25.SE.150.art.commands.
+split -l 5000 -d -a 5 $triploidARTPE150 $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.HS25.PE.150.art.commands.
+split -l 5000 -d -a 5 $triploidARTSE250 $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.MSv3.SE.250.art.commands.
+split -l 5000 -d -a 5 $triploidARTPE250 $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.MSv3.PE.250.art.commands.
 for file in $(ls $ngsphyReplicatePath/scripts/*.art.commands*); do    mv $file "$file.sh"; done
 
 ################################################################################
