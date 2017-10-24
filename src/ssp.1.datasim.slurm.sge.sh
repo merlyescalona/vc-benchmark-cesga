@@ -118,6 +118,23 @@ done
 nJobs=$(cat $artFilesReplicate |wc -l | awk '{print $1}')
 step7JOBID=$(sbatch -a 1-$nJobs $folderJOBS/1.datasim/ssp.7.art.slurm.sh $artFilesReplicate | awk '{print $1}')
 
+################################################################################
+# ORGANIZATION OF READS PER INDIVIDUALS
+################################################################################
+for replicateST in ${replicates[*]}; do
+    qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh PE150DFLT PAIRED $replicateST reads_run_PE_150_DFLT
+done
+for replicateST in ${replicates[*]}; do
+    qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh SE150DFLT SINGLE $replicateST reads_run_SE_150_DFLT
+done
+for replicateST in ${replicates[*]}; do
+    qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh SE250DFLT SINGLE $replicateST reads_run_SE_250_DFLT
+done
+for replicateST in ${replicates[*]}; do
+    qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/vcs.6.organization.fq.individuals.sh PE250DFLT PAIRED $replicateST reads_run_PE_250_DFLT
+done
+
+
 ########################################################################
 ##############         SGE                    ##########################
 ########################################################################
@@ -125,7 +142,7 @@ step7JOBID=$(sbatch -a 1-$nJobs $folderJOBS/1.datasim/ssp.7.art.slurm.sh $artFil
 ########################################################################
 # 6.2 SGE PREP2ART - Generation of folder structure for all art commands per PROFILES
 #-----------------------------------------------------------------------
-simphyReplicateID=2
+simphyReplicateID=3
 pipelinesName="ssp"
 replicatesNumDigits=5
 replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
