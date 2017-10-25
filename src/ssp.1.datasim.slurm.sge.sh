@@ -93,6 +93,9 @@ step8JOBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step5JOBID $fold
 if [[ $CLUSTER_ENV -eq "SLURM" ]]; then
     step6OBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step5JOBID $folderJOBS/1.datasim/ssp.6.prep.2.art.slurm.sh | awk '{ print $4}')
 fi
+
+step6OBID=$(sbatch -a 3 /home/uvi/be/mef/vc-benchmark-cesga/jobs/1.datasim/ssp.6.prep.2.art.slurm.sh | awk '{ print $4'})
+
 ########################################################################
 # LAUNCHING JOBS FOR ART GENERATION
 ########################################################################
@@ -100,9 +103,12 @@ simphyReplicateID=3
 pipelinesName="ssp"
 replicatesNumDigits=5
 replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
-ngsphyReplicatePath="$LUSTRE/data/ngsphy.data/NGSphy_${pipelinesName}.${replicateID}"
+# ngsphyReplicatePath="$LUSTRE/data/ngsphy.data/NGSphy_${pipelinesName}.${replicateID}"
+ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
 replicates=($(ls $ngsphyReplicatePath/reads))
-artFilesReplicate="$HOME/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.art.commands.files.txt"
+artFilesReplicate="$HOME/src/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.art.commands.files.txt"
+touch $artFilesReplicate
+rm $artFilesReplicate
 for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.HS25.PE.150.art.commands*" | sort); do
     echo $item >> $artFilesReplicate
 done
@@ -116,7 +122,7 @@ for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${repli
     echo $item >> $artFilesReplicate
 done
 nJobs=$(cat $artFilesReplicate |wc -l | awk '{print $1}')
-step7JOBID=$(sbatch -a 1-$nJobs $folderJOBS/1.datasim/ssp.7.art.slurm.sh $artFilesReplicate | awk '{print $4}')
+step7JOBID=$(sbatch -a 1-$nJobs --dependency=afterok:$step6OBID  $folderJOBS/1.datasim/ssp.7.art.slurm.sh $artFilesReplicate | awk '{print $4}')
 
 ################################################################################
 # ORGANIZATION OF READS PER INDIVIDUALS
@@ -141,7 +147,6 @@ pipelinesName="ssp"
 replicatesNumDigits=5
 replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
 ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
-replicates=($(ls $ngsphyReplicatePath/reads))
 #-----------------------------------------------------------------------
 if [[ $CLUSTER_ENV -eq "SGE" ]]; then
     replicateID=$(printf "%05g" $simphyReplicateID)
@@ -150,27 +155,31 @@ if [[ $CLUSTER_ENV -eq "SGE" ]]; then
     rsync -rP $replicateFOLDER/  merly@triploid.uvigo.es:/home/merly/data/$pipelinesName.$replicateID
     rsync -rP $LUSTRE/data/ngsphy.data/NGSphy_$pipelinesName.$replicateID/  merly@triploid.uvigo.es:/home/merly/data/NGSphy_$pipelinesName.$replicateID
     scp -r $LUSTRE/data/references/references.${pipelinesName}.${replicateID}.*  merly@triploid.uvigo.es:/home/merly/references/
-    step5OBID_SGE=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.5.ngsphy.sh)
 fi
 ########################################################################
 # LAUNCHING JOBS FOR ART GENERATION
 ########################################################################
+replicates=($(ls $ngsphyReplicatePath/reads))
+artFilesReplicate="$HOME/src/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.art.commands.files.txt"
+rm $artFilesReplicate
+touch $artFilesReplicate
 for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.HS25.PE.150.art.commands*" | sort); do
-    echo $item
-    qsub $HOME/src/vc-benchmark-cesga/jobs/vcs.5.art.split.sge.sh $item;
+    echo $item >> $artFilesReplicate
 done
 for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.HS25.SE.150.art.commands*" | sort); do
-    echo $item
-    qsub $HOME/src/vc-benchmark-cesga/jobs/vcs.5.art.split.sge.sh $item;
+    echo $item >> $artFilesReplicate
 done
 for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.MSv3.SE.250.art.commands*" | sort); do
-    echo $item
-    qsub $HOME/src/vc-benchmark-cesga/jobs/vcs.5.art.split.sge.sh $item;
+    echo $item >> $artFilesReplicate
 done
 for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.MSv3.PE.250.art.commands*" | sort); do
-    echo $item
-    qsub $HOME/src/vc-benchmark-cesga/jobs/vcs.5.art.split.sge.sh $item;
+    echo $item >> $artFilesReplicate
 done
+nJobs=$(cat $artFilesReplicate |wc -l | awk '{print $1}')
+step7JOBID=$(qsub-t 1-$nJobs $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.7.art.sge.sh $artFilesReplicate | awk '{print $1}')
+
+
+
 ################################################################################
 # ORGANIZATION OF READS PER INDIVIDUALS
 ################################################################################

@@ -7,8 +7,6 @@
 
 echo -e "[$(date)]\nDefinition"
 module load gcc/5.2.0 bio/art/050616
-correctID=$SGE_TASK_ID
-let correctID=correctID-1
-filename="$1.$(printf "%04g" $correctID).sh"
+filename=$(awk "NR==$SGE_TASK_ID" $1)
 bash $filename
 module unload gcc/5.2.0 bio/art/050616
