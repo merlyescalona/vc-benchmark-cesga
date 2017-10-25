@@ -75,7 +75,12 @@ CHECK_NUM_FILES_INDELIBLE
 ########################################################################
 # 4. Reference Loci Selection
 ########################################################################
-step4JOBID=$(sbatch -t $simphyReplicateID  --dependency=afterok:$step3JOBID $folderJOBS/1.datasim/ssp.4.references.slurm.sh | awk '{ print $4}')
+if [[ $CLUSTER_ENV -eq "SLURM" ]]; then
+    step4JOBID=$(sbatch -a $simphyReplicateID  --dependency=afterok:$step3JOBID $folderJOBS/1.datasim/ssp.4.references.slurm.sh | awk '{ print $4}')
+fi
+if [[ $CLUSTER_ENV -eq "SGE" ]]; then
+    step4JOBID=$(qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.4.references.sge.sh | awk '{ print $1}')
+fi
 ########################################################################
 # 5. NGSPHY
 ########################################################################
@@ -93,8 +98,6 @@ step8JOBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step5JOBID $fold
 if [[ $CLUSTER_ENV -eq "SLURM" ]]; then
     step6OBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step5JOBID $folderJOBS/1.datasim/ssp.6.prep.2.art.slurm.sh | awk '{ print $4}')
 fi
-
-step6OBID=$(sbatch -a 3 /home/uvi/be/mef/vc-benchmark-cesga/jobs/1.datasim/ssp.6.prep.2.art.slurm.sh | awk '{ print $4'})
 
 ########################################################################
 # LAUNCHING JOBS FOR ART GENERATION

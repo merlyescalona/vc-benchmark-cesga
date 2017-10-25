@@ -12,7 +12,7 @@
 ################################################################################
 source $HOME/src/vc-benchmark-cesga/src/vcs.variables.sh
 ################################################################################
-simphyReplicateID=2
+simphyReplicateID=3
 pipelinesName="ssp"
 replicatesNumDigits=5
 replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
