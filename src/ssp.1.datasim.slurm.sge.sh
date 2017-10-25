@@ -159,6 +159,7 @@ fi
 ########################################################################
 # LAUNCHING JOBS FOR ART GENERATION
 ########################################################################
+step6OBID=$(qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.6.prep.2.art.sge.sh | awk '{ print $1}')
 replicates=($(ls $ngsphyReplicatePath/reads))
 artFilesReplicate="$HOME/src/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.art.commands.files.txt"
 rm $artFilesReplicate
@@ -176,7 +177,7 @@ for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${repli
     echo $item >> $artFilesReplicate
 done
 nJobs=$(cat $artFilesReplicate |wc -l | awk '{print $1}')
-step7JOBID=$(qsub-t 1-$nJobs $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.7.art.sge.sh $artFilesReplicate | awk '{print $1}')
+step7JOBID=$(qsub -t 1-$nJobs $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.7.art.sge.sh $artFilesReplicate | awk '{print $1}')
 
 
 

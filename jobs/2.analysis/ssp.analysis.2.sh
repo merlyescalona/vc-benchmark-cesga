@@ -30,6 +30,10 @@ for distRefID in ${distanceReference[*]}; do
         nInds=($(ls $ngsphyReplicatePath/$profileFOLDER/$replicateST/*_R1.fq.gz | wc -l))
         let nInds=nInds-1
         referenceFile="${referencesReplicatePath}.${distRefID}.${sizeID}/${distRefID}${sizeID}_${replicateST}.fasta" # outgroup size 300
+        if [[ ! -d $HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/ ]]; then
+            mkdir -p $HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/
+        fi
+
         for indID in $(seq 0 $nInds); do
             echo "${profileFOLDER}/${replicateST}/${pipelinesName}_${indID}"
             infile="${ngsphyReplicatePath}/${profileFOLDER}/${replicateST}/${pipelinesName}_${indID}_"
