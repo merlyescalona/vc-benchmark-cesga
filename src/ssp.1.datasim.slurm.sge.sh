@@ -40,9 +40,9 @@ RSYNC
 ################################################################################
 # Folder paths
 ################################################################################
-source $HOME/vc-benchmark-cesga/src/vcs.variables.sh
+source $HOME/vc-benchmark-cesga/src/ssp.variables.sh
 CLUSTER_ENV="SLURM"
-simphyReplicateID=4
+simphyReplicateID=3
 ################################################################################
 # 1. SIMPHY
 ################################################################################
@@ -145,7 +145,7 @@ done
 ########################################################################
 # 6.2 SGE PREP2ART - Generation of folder structure for all art commands per PROFILES
 #-----------------------------------------------------------------------
-simphyReplicateID=3
+simphyReplicateID=4
 pipelinesName="ssp"
 replicatesNumDigits=5
 replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
@@ -162,7 +162,7 @@ fi
 ########################################################################
 # LAUNCHING JOBS FOR ART GENERATION
 ########################################################################
-step6OBID=$(qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.6.prep.2.art.sge.sh | awk '{ print $1}')
+step6OBID=$(qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.6.prep.2.art.sge.sh | awk '{ print $2}')
 replicates=($(ls $ngsphyReplicatePath/reads))
 artFilesReplicate="$HOME/src/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.art.commands.files.txt"
 rm $artFilesReplicate
@@ -180,18 +180,20 @@ for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${repli
     echo $item >> $artFilesReplicate
 done
 nJobs=$(cat $artFilesReplicate |wc -l | awk '{print $1}')
-step7JOBID=$(qsub -t 1-$nJobs $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.7.art.sge.sh $artFilesReplicate | awk '{print $1}')
+step7JOBID=$(qsub -t 1-$nJobs $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.7.art.sge.sh $artFilesReplicate | awk '{print $2}')
 
 
 
 ################################################################################
 # ORGANIZATION OF READS PER INDIVIDUALS
 ################################################################################
-step9PE150DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.sge.sh PE150DFLT PAIRED $replicateST reads_run_PE_150_DFLT)
-step9SE150DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.sge.sh SE150DFLT SINGLE $replicateST reads_run_SE_150_DFLT)
-step9SE250DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.sge.sh SE250DFLT SINGLE $replicateST reads_run_SE_250_DFLT)
-step9PE250DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.sge.sh PE250DFLT PAIRED $replicateST reads_run_PE_250_DFLT)
 
+for replicateST in ${replicates[*]}; do
+    step9PE150DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.sge.sh PE150DFLT PAIRED $replicateST reads_run_PE_150_DFLT)
+    step9SE150DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.sge.sh SE150DFLT SINGLE $replicateST reads_run_SE_150_DFLT)
+    step9SE250DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.sge.sh SE250DFLT SINGLE $replicateST reads_run_SE_250_DFLT)
+    step9PE250DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.sge.sh PE250DFLT PAIRED $replicateST reads_run_PE_250_DFLT)
+done
 # To check status of the org.fq.ind jobs
 for item in $(qstat | grep org  | awk '{print $1}'); do
     echo "$item, $(qstat -j $item | grep job_args)";

@@ -34,18 +34,22 @@ module purge
 module load gcc/5.3.0 simphy/1.0.2 sqlite/3.11.0  R/3.3.3
 simphy  -rs $RS -rl $RL -su $SU -sb $SB -sl $SL -si $SI -sp $SP -st $ST -so $SO \
         -sg $SG -gp $GP -hh $HH -hg $HG  -v 1 \
-        -o ${pipelinesName}.$(printf "%05g" ${SLURM_ARRAY_TASK_ID}) \
+        -o ${pipelinesName}.${pipeID} \
         -cs "$RANDOM$RANDOM" -od 1 -op 1 -oc 1 -on 1
 echo "Filtering replicates"
-simphyLOCATION="/mnt/lustre/scratch/home/uvi/be/mef/data/${pipelinesName}.$(printf "%05g" ${SLURM_ARRAY_TASK_ID})"
+simphyLOCATION="/mnt/lustre/scratch/home/uvi/be/mef/data/${pipelinesName}.${pipeID}"
 Rscript $HOME/vc-benchmark-cesga/src/filtering.even.R \
-    "$simphyLOCATION/${pipelinesName}.$(printf "%05g" ${SLURM_ARRAY_TASK_ID}).db" \
-    "$HOME/vc-benchmark-cesga/files/${pipelinesName}.$(printf "%05g" ${SLURM_ARRAY_TASK_ID}).evens" \
-    "$HOME/vc-benchmark-cesga/files/${pipelinesName}.$(printf "%05g" ${SLURM_ARRAY_TASK_ID}).odds"
+    "$simphyLOCATION/${pipelinesName}${pipeID}.db" \
+    "$HOME/vc-benchmark-cesga/files/${pipelinesName}.${pipeID}.evens" \
+    "$HOME/vc-benchmark-cesga/files/${pipelinesName}.${pipeID}.odds"
 
-for line in $(cat $HOME/vc-benchmark-cesga/files/${pipelinesName}.$(printf "%05g" ${SLURM_ARRAY_TASK_ID}).evens); do
+if [[ -f  $HOME/vc-benchmark-cesga/files/${pipelinesName}.${pipeID}.indelible.folders.txt ]]; then
+    rm $HOME/vc-benchmark-cesga/files/${pipelinesName}.${pipeID}.indelible.folders.txt
+fi
+
+for line in $(cat $HOME/vc-benchmark-cesga/files/${pipelinesName}.${pipeID}.evens); do
   st=$(printf "%02g" ${line})
-  echo "$LUSTRE/data/${pipelinesName}.$(printf "%05g" ${SLURM_ARRAY_TASK_ID})/${st}" >> $HOME/vc-benchmark-cesga/files/${pipelinesName}.$(printf "%05g" ${SLURM_ARRAY_TASK_ID}).indelible.folders.txt
+  echo "$LUSTRE/data/${pipelinesName}.${pipeID}/${st}" >> $HOME/vc-benchmark-cesga/files/${pipelinesName}.${pipeID}.indelible.folders.txt
 done
 
 module unload gcc/5.3.0 simphy/1.0.2 sqlite/3.11.0 R/3.3.3

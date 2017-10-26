@@ -2,7 +2,7 @@
 #SBATCH -n 1
 #SBATCH -t 00:30:00
 #
-#SBATCH --job-name=ssp.2
+#SBATCH --job-name=wrapper
 #SBATCH --output=/mnt/lustre/scratch/home/uvi/be/mef/output/ssp.2.%a.o
 #SBATCH --error=/mnt/lustre/scratch/home/uvi/be/mef/error/ssp.2.%a.e
 #SBATCH --workdir=/mnt/lustre/scratch/home/uvi/be/mef/data/
@@ -20,6 +20,6 @@ module load gcc/6.3.0 os-devel/usr openssl/1.0.2f  gsl/2.3 perl/5.24.0
 wrapper="$HOME/vc-benchmark-cesga/src/INDELible_wrapper_v2.pl"
 controlFile="$HOME/vc-benchmark-cesga/files/indelible.control.txt"
 #Usage: ./INDELIble_wrapper.pl directory input_config seed numberofcores
-echo "perl $wrapper $pipelinesName.$pipeID $controlFile 523911721 1 &> \"$LUSTRE/output/$pipelinesName.$pipeID.${SLURM_ARRAY_TASK_ID}.indelible.wrapper.txt\""
-perl $wrapper $LUSTRE/data/$pipelinesName.$pipeID $controlFile 523911721 1 &> "$LUSTRE/output/$pipelinesName.$pipeID.${SLURM_ARRAY_TASK_ID}.indelible.wrapper.txt"
+echo "perl $wrapper $pipelinesName.$pipeID $controlFile 523911721 1 &> \"$LUSTRE/output/$pipelinesName.$pipeID.indelible.wrapper.txt\""
+perl $wrapper $LUSTRE/data/$pipelinesName.$pipeID $controlFile 523911721 1 &> "$LUSTRE/output/$pipelinesName.$pipeID.indelible.wrapper.txt"
 module unload gcc/6.3.0 os-devel/usr openssl/1.0.2f  gsl/2.3 perl/5.24.0

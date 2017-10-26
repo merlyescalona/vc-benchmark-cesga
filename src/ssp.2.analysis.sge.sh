@@ -12,7 +12,7 @@
 ################################################################################
 source $HOME/src/vc-benchmark-cesga/src/vcs.variables.sh
 ################################################################################
-simphyReplicateID=3
+simphyReplicateID=4
 pipelinesName="ssp"
 replicatesNumDigits=5
 replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
@@ -51,16 +51,18 @@ qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.anal
 qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.4.sh PE250DFLT
 qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.4.sh SE250DFLT
 
+
+bwa mem -t 4 -R "@RG\tID:outgroup-300\tSM:S.02-I.61\tPL:Illumina\tLB:outgroup-300\tPU:HiSeq2500" /home/merly/data/references/references.ssp.00001.outgroup.300/outgroup300_02.fasta /home/merly/data/NGSphy_ssp.00001/PE150DFLT/02/ssp_61_R1.fq.gz /home/merly/data/NGSphy_ssp.00001/PE150DFLT/02/ssp_61_R2.fq.gz > /home/merly/data/mappings/ssp.00001/PE150DFLT/02/ssp.00001.02.61.outgroup.300.sam
 ################################################################################
 # 5. BAMMING SORTING # 12 threads
 ################################################################################
-profiles=("PE150DFLT" "PE150OWN" "SE150DFLT") #("PE250DFLT" "SE250DFLT") #  ("SE150DFLT") #
-bammingFile=$HOME/src/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.p1.sh
+profiles=("PE250DFLT" "SE250DFLT") # ("PE150DFLT" "PE150OWN" "SE150DFLT") #
+bammingFile=$HOME/src/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.p2.sh
 for profileFOLDER in ${profiles[*]};do
     find "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/" -name "${pipelinesName}.${replicateID}.${profileFOLDER}.samtools.commands.*" -type f  | sort  >> $bammingFile
 done
 numJobs=$(cat $bammingFile | wc -l )
-qsub -pe threaded 12 -t 1-$numJobs -hold_jid 645985-645987 $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.5.sh $bammingFile
+qsub -pe threaded 12 -t 1-$numJobs  $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.5.sh $bammingFile
 
 
 
