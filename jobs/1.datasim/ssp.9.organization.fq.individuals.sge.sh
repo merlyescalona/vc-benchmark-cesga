@@ -37,6 +37,3 @@ for individualID in $(seq 0 $numIndividuals); do
         gzip $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_$replicateST_${individualID}_R2.fq
     fi
 done
-
-echo "Deleting single FQ files "
-rm -rf $ngsphyReplicatePath/$readsFolderName/

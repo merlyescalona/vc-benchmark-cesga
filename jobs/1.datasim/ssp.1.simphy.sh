@@ -7,9 +7,9 @@
 #SBATCH --error=/mnt/lustre/scratch/home/uvi/be/mef/error/ssp.1.%a.e
 #SBATCH --workdir=/mnt/lustre/scratch/home/uvi/be/mef/data/
 #
-#SBATCH --mail-type=begin,end
+#SBATCH --mail-type=end
 #SBATCH --mail-user=escalona10@gmail.com
-#SBATCH --partition shared
+#SBATCH --partition shared,gpu-shared-k2
 #SBATCH --qos=shared
 
 pipeID=$(printf "%05g" ${SLURM_ARRAY_TASK_ID})
