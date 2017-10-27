@@ -12,7 +12,7 @@
 #SBATCH --partition shared,gpu-shared-k2
 #SBATCH --qos=shared
 
-{pipeID}=$(printf "%05g" ${SLURM_ARRAY_TASK_ID})
+pipeID=$(printf "%05g" ${SLURM_ARRAY_TASK_ID})
 pipelinesName="ssp"
 echo $pipeID, ${pipelinesName}
 module purge
