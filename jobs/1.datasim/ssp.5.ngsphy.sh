@@ -35,7 +35,7 @@ folderNGSPROFILE="$HOME/vc-benchmark-cesga/files"
 echo "bash $ngsphySettingsGenerator $pipelinesName $replicateID $LUSTRE/data/$simphyFOLDER $folderNGSPROFILE $LUSTRE/data/ngsphy.settings/${simphyFOLDER}.txt $LUSTRE/data/ngsphy.data"
 bash $ngsphySettingsGenerator   $pipelinesName \
                                 $replicateID \
-                                $LUSTRE/data/$simphyFOLDER
+                                $LUSTRE/data/$simphyFOLDER \
                                 $LUSTRE/data/ngsphy.settings/${simphyFOLDER}.txt \
                                 $LUSTRE/data/ngsphy.data/
 ################################################################################
