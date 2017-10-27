@@ -33,7 +33,11 @@ folderNGSPROFILE="$HOME/vc-benchmark-cesga/files"
 ################################################################################
 # bash ssp.write.ngsphy pipelinesName idREPLICATE folderSIMPHY folderNGSPROFILE fileOUTPUT folderOUTPUT
 echo "bash $ngsphySettingsGenerator $pipelinesName $replicateID $LUSTRE/data/$simphyFOLDER $folderNGSPROFILE $LUSTRE/data/ngsphy.settings/${simphyFOLDER}.txt $LUSTRE/data/ngsphy.data"
-bash $ngsphySettingsGenerator $pipelinesName $replicateID $LUSTRE/data/$simphyFOLDER $folderNGSPROFILE $LUSTRE/data/ngsphy.settings/${simphyFOLDER}.txt $LUSTRE/data/ngsphy.data
+bash $ngsphySettingsGenerator   $pipelinesName \
+                                $replicateID \
+                                $LUSTRE/data/$simphyFOLDER
+                                $LUSTRE/data/ngsphy.settings/${simphyFOLDER}.txt \
+                                $LUSTRE/data/ngsphy.data/
 ################################################################################
 module purge
 module load anaconda2/4.0.0 gcc/5.3.0 art/2016-06-05

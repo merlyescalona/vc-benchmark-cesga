@@ -1,14 +1,13 @@
 #!/bin/bash
 pipelinesName=$1
-idREPLICATE=$2
+replicateID=$2
 folderSIMPHY=$3
-folderNGSPROFILE=$4
-fileOUTPUT=$5
-folderOUTPUT=$6
+fileOUTPUT=$4
+folderOUTPUT=$5
 echo -e "
 [general]
 path=${folderOUTPUT}
-output_folder_name=NGSphy_${pipelinesName}.${idREPLICATE}
+output_folder_name=NGSphy_${pipelinesName}.${replicateID}
 ploidy=2
 [data]
 inputmode=4

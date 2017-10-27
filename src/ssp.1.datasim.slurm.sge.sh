@@ -42,7 +42,7 @@ RSYNC
 ################################################################################
 source $HOME/vc-benchmark-cesga/src/ssp.variables.sh
 CLUSTER_ENV="SLURM"
-simphyReplicateID=3
+simphyReplicateID=5
 ################################################################################
 # 1. SIMPHY
 ################################################################################
@@ -187,7 +187,7 @@ step7JOBID=$(qsub -t 1-$nJobs $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.7.
 ################################################################################
 # ORGANIZATION OF READS PER INDIVIDUALS
 ################################################################################
-
+replicates=($(ls $ngsphyReplicatePath/reads))
 for replicateST in ${replicates[*]}; do
     step9PE150DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.sge.sh PE150DFLT PAIRED $replicateST reads_run_PE_150_DFLT)
     step9SE150DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.sge.sh SE150DFLT SINGLE $replicateST reads_run_SE_150_DFLT)
@@ -196,5 +196,7 @@ for replicateST in ${replicates[*]}; do
 done
 # To check status of the org.fq.ind jobs
 for item in $(qstat | grep org  | awk '{print $1}'); do
-    echo "$item, $(qstat -j $item | grep job_args)";
+    status=$(qstat -j $item | grep job_args | awk '{print $2}')
+    folderParam=$(echo $status | tr "," " "| awk '{print $1"/"$3}')
+    echo -e "$item\t$folderParam\t$( ls -l $ngsphyReplicatePath/$folderParam | wc -l)";
 done

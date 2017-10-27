@@ -39,7 +39,7 @@ simphy  -rs $RS -rl $RL -su $SU -sb $SB -sl $SL -si $SI -sp $SP -st $ST -so $SO 
 echo "Filtering replicates"
 simphyLOCATION="/mnt/lustre/scratch/home/uvi/be/mef/data/${pipelinesName}.${pipeID}"
 Rscript $HOME/vc-benchmark-cesga/src/filtering.even.R \
-    "$simphyLOCATION/${pipelinesName}${pipeID}.db" \
+    "$simphyLOCATION/${pipelinesName}.${pipeID}.db" \
     "$HOME/vc-benchmark-cesga/files/${pipelinesName}.${pipeID}.evens" \
     "$HOME/vc-benchmark-cesga/files/${pipelinesName}.${pipeID}.odds"
 

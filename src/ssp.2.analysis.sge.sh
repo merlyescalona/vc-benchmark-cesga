@@ -30,10 +30,10 @@ done
 ################################################################################
 # 2. GENERATION OF BWA COMMAND LINESs
 ################################################################################
-qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh PE150DFLT HiSeq2500
-qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh SE150DFLT HiSeq2500
-qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh PE250DFLT MiSeqV3
-qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh SE250DFLT MiSeqV3
+qsub -t $simphyReplicateID  -hold_jid ref.index $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh PE150DFLT HiSeq2500
+qsub -t $simphyReplicateID  -hold_jid ref.index $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh SE150DFLT HiSeq2500
+qsub -t $simphyReplicateID  -hold_jid ref.index $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh PE250DFLT MiSeqV3
+qsub -t $simphyReplicateID  -hold_jid ref.index $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh SE250DFLT MiSeqV3
 ################################################################################
 # 3. MAPPINGS
 ################################################################################
