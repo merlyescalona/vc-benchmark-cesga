@@ -7,6 +7,9 @@
 module purge
 module load java/jdk/1.8.0_31  bio/picard/2.0.1
 ################################################################################
+replicate=$2
+profile=$3
+echo "$replicate, $profile"
 filename=$(awk "NR==$SGE_TASK_ID" $1)
 base=$(basename $filename .bam)
 dir=$(dirname $filename )
