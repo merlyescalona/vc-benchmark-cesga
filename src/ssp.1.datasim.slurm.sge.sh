@@ -115,6 +115,11 @@ step4JOBID=$(qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/1.dat
 # LAUNCHING JOBS FOR ART GENERATION
 ########################################################################
 step6OBID=$(qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.6.prep.2.art.sge.sh | awk '{ print $2}')
+simphyReplicateID=6
+pipelinesName="ssp"
+replicatesNumDigits=5
+replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
+ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
 replicates=($(ls $ngsphyReplicatePath/reads))
 artFilesReplicate="$HOME/src/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.art.commands.files.txt"
 rm $artFilesReplicate
@@ -134,7 +139,21 @@ done
 nJobs=$(cat $artFilesReplicate |wc -l | awk '{print $1}')
 step7JOBID=$(qsub -t 1-$nJobs $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.7.art.sge.sh $artFilesReplicate | awk '{print $2}')
 
-
+################################################################################
+################################################################################
+for item in 6 8 9 10 11 12 13 14 15; do
+    LUSTRE="/mnt/lustre/scratch/home/uvi/be/mef"
+    simphyReplicateID=$item #$item
+    pipelinesName="ssp"
+    replicatesNumDigits=5
+    replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
+    ngsphyReplicatePathTRIPLOID="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
+    ngsphyReplicatePathCESGA="$LUSTRE/data/ngsphy.data/NGSphy_${pipelinesName}.${replicateID}/"
+    replicateFOLDERCESGA="$LUSTRE/data/$pipelinesName.$replicateID/"
+    replicateFOLDERTRIPLOID="$HOME/data/$pipelinesName.$replicateID"
+    rsync -rP uvibemef@ft2.cesga.es:$ngsphyReplicatePathCESGA $ngsphyReplicatePathTRIPLOID
+    rsync -rP uvibemef@ft2.cesga.es:$replicateFOLDERCESGA $replicateFOLDERTRIPLOID
+done
 
 ################################################################################
 # ORGANIZATION OF READS PER INDIVIDUALS
@@ -146,9 +165,18 @@ for replicateST in ${replicates[*]}; do
     step9SE250DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.sge.sh SE250DFLT SINGLE $replicateST reads_run_SE_250_DFLT)
     step9PE250DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.sge.sh PE250DFLT PAIRED $replicateST reads_run_PE_250_DFLT)
 done
+
+################################################################################
 # To check status of the org.fq.ind jobs
+################################################################################
 for item in $(qstat | grep org  | awk '{print $1}'); do
     status=$(qstat -j $item | grep job_args | awk '{print $2}')
+    qstatTask=$(qstat | grep org  | grep $item | awk '{print $10}')
     folderParam=$(echo $status | tr "," " "| awk '{print $1"/"$3}')
-    echo -e "$item\t$folderParam\t$( ls -l $ngsphyReplicatePath/$folderParam| grep R1 | wc -l)";
+    simphyReplicateID=$qstatTask
+    pipelinesName="ssp"
+    replicatesNumDigits=5
+    replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
+    ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
+    echo -e "${pipelinesName}.${replicateID}\t$item\t$folderParam\t$( ls -l $ngsphyReplicatePath/$folderParam| grep R1 | wc -l)";
 done

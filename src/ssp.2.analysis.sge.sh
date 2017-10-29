@@ -52,7 +52,6 @@ qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.anal
 qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.4.sh SE250DFLT
 
 
-bwa mem -t 4 -R "@RG\tID:outgroup-300\tSM:S.02-I.61\tPL:Illumina\tLB:outgroup-300\tPU:HiSeq2500" /home/merly/data/references/references.ssp.00001.outgroup.300/outgroup300_02.fasta /home/merly/data/NGSphy_ssp.00001/PE150DFLT/02/ssp_61_R1.fq.gz /home/merly/data/NGSphy_ssp.00001/PE150DFLT/02/ssp_61_R2.fq.gz > /home/merly/data/mappings/ssp.00001/PE150DFLT/02/ssp.00001.02.61.outgroup.300.sam
 ################################################################################
 # 5. BAMMING SORTING # 12 threads
 ################################################################################
@@ -69,7 +68,17 @@ qsub -pe threaded 12 -t 1-$numJobs  $HOME/src/vc-benchmark-cesga/jobs/2.analysis
 ################################################################################
 # 6. INFORMATION ON THE MAPPING
 ################################################################################
+profiles=("PE250DFLT" "SE250DFLT" "PE150DFLT" "PE150OWN" "SE150DFLT") #
+bammingFile=$HOME/src/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.${profileFOLDER}.picard.sh
+for profileFOLDER in ${profiles[*]};do
+    find "$HOME/data/mappings/${pipelinesName}.${replicateID}/${profileFOLDER}/" -name "*.bam" -type f  | sort  >> $bammingFile
+done
+numJobs=$(cat $bammingFile | wc -l )
+qsub -pe threaded 12 -t 1-$numJobs  $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.5.sh $bammingFile
 
+
+
+################################################################################
 To ask the view command to report solely “proper pairs” we use the -f
 option and ask for alignments where the second bit is true (proper pair is true).
 
