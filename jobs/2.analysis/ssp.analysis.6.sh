@@ -15,16 +15,16 @@ base=$(basename $filename .bam)
 dir=$(dirname $filename )
 if [[ ! -d  $dir/metrics/ ]]; then
     mkdir -p $dir/metrics/
-done
+fi
 if [[ ! -d  $dir/dedup/ ]]; then
     mkdir -p $dir/dedup/
-done
+fi
 if [[ ! -d  $dir/summary/ ]]; then
     mkdir -p $dir/summary/
-done
+fi
 if [[ ! -d  $dir/histogram/ ]]; then
     mkdir -p $dir/histogram/
-done
+fi
 metricOutput="$dir/metrics/$base.metrics.txt"
 dedupOutput="$dir/dedup/$base.dedup.bam"
 echo "picard MarkDuplicates INPUT=$filename OUTPUT=$dedupOutput METRIC=$metricOutput"
