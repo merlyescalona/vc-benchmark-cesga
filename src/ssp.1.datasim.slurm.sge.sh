@@ -47,7 +47,7 @@ source $HOME/vc-benchmark-cesga/src/ssp.variables.sh
 ################################################################################################################################################
 # SLURM ENV - This is run @ ft2.cesga.es
 ################################################################################################################################################
-simphyReplicateID=5
+simphyReplicateID="16-18"
 ################################################################################
 # 1. SIMPHY
 ################################################################################
@@ -66,7 +66,7 @@ step2JOBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step1JOBID $fold
 ################################################################################
 # Need to figure out the folder from where I'll call indelilble
 # Need to filter the species tree replicates that do not have ninds % 2==0
-for simphyReplicateID in $(seq 6 15); do
+for simphyReplicateID in 16 17 18; do
     numJobs=$(wc -l $HOME/vc-benchmark-cesga/files/${pipelinesName}.$(printf "%05g" $simphyReplicateID).indelible.folders.txt | awk '{ print $1}')
     step3JOBID=$(sbatch -a 1-$numJobs $folderJOBS/1.datasim/ssp.3.indelible.array.sh $simphyReplicateID | awk '{ print $4}')
 done
@@ -74,7 +74,7 @@ done
 <<CHECK_NUM_FILES_INDELIBLE
 # To check num fasta files and trees in indelible folders
 count=0; alljobs=0;
-for simphyReplicateID in $(seq 6 15); do
+for simphyReplicateID in $(seq 16 18); do
     indelibleFolders="$HOME/vc-benchmark-cesga/files/ssp.$(printf "%05g" $simphyReplicateID).indelible.folders.txt"
     for item in $(cat $indelibleFolders);do
         cd $item;
@@ -141,7 +141,7 @@ step7JOBID=$(qsub -t 1-$nJobs $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.7.
 
 ################################################################################
 ################################################################################
-for item in 6 8 9 10 11 12 13 14 15; do
+for item in 16 17 18; do
     LUSTRE="/mnt/lustre/scratch/home/uvi/be/mef"
     simphyReplicateID=$item #$item
     pipelinesName="ssp"
@@ -151,13 +151,18 @@ for item in 6 8 9 10 11 12 13 14 15; do
     ngsphyReplicatePathCESGA="$LUSTRE/data/ngsphy.data/NGSphy_${pipelinesName}.${replicateID}/"
     replicateFOLDERCESGA="$LUSTRE/data/$pipelinesName.$replicateID/"
     replicateFOLDERTRIPLOID="$HOME/data/$pipelinesName.$replicateID"
-    rsync -rP uvibemef@ft2.cesga.es:$ngsphyReplicatePathCESGA $ngsphyReplicatePathTRIPLOID
+    # rsync -rP uvibemef@ft2.cesga.es:$ngsphyReplicatePathCESGA $ngsphyReplicatePathTRIPLOID
     rsync -rP uvibemef@ft2.cesga.es:$replicateFOLDERCESGA $replicateFOLDERTRIPLOID
 done
 
 ################################################################################
 # ORGANIZATION OF READS PER INDIVIDUALS
 ################################################################################
+simphyReplicateID=5
+pipelinesName="ssp"
+replicatesNumDigits=5
+replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
+ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
 replicates=($(ls $ngsphyReplicatePath/reads))
 for replicateST in ${replicates[*]}; do
     step9PE150DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.sge.sh PE150DFLT PAIRED $replicateST reads_run_PE_150_DFLT)
