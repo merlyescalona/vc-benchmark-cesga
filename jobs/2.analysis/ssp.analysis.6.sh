@@ -27,8 +27,8 @@ if [[ ! -d  $dir/histogram/ ]]; then
 fi
 metricOutput="$dir/metrics/$base.metrics.txt"
 dedupOutput="$dir/dedup/$base.dedup.bam"
-echo "picard MarkDuplicates INPUT=$filename OUTPUT=$dedupOutput METRIC=$metricOutput"
-picard MarkDuplicates INPUT=$filename OUTPUT=$dedupOutput METRIC=$metricOutput
+echo "picard MarkDuplicates I=$filename O=$dedupOutput M=$metricOutput"
+picard MarkDuplicates I=$filename O=$dedupOutput M=$metricOutput
 
 
 summaryOutput="$dir/summary/$base.summary.txt"
