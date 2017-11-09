@@ -1,0 +1,7 @@
+/mnt/lustre/scratch//home/uvi/be/mef/data/ssp.00006/01
+/mnt/lustre/scratch//home/uvi/be/mef/data/ssp.00006/03
+/mnt/lustre/scratch//home/uvi/be/mef/data/ssp.00006/04
+/mnt/lustre/scratch//home/uvi/be/mef/data/ssp.00006/06
+/mnt/lustre/scratch//home/uvi/be/mef/data/ssp.00006/07
+/mnt/lustre/scratch//home/uvi/be/mef/data/ssp.00006/09
+/mnt/lustre/scratch//home/uvi/be/mef/data/ssp.00006/10
