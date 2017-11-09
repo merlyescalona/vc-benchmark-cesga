@@ -18,15 +18,15 @@ simphyReplicateID=${SLURM_ARRAY_TASK_ID}
 replicateID=$(printf "%05g" $simphyReplicateID)
 pipelinesName="ssp"
 module purge
-module load anaconda2/4.0.0
+module load anaconda2/4.0.0 sqlite
 
 if [ ! -d $LUSTRE/data/references ];then
     mkdir -p $LUSTRE/data/references
 fi
 
-refselector -p 2 -s $LUSTRE/data/${pipelinesName}.${replicateID} -ip data -op outgroup300 -o $LUSTRE/data/references/references.${pipelinesName}.${replicateID}.outgroup.300  -m 0 --nsize 300
-refselector -p 2 -s $LUSTRE/data/${pipelinesName}.${replicateID} -ip data -op rndingroup300 -o $LUSTRE/data/references/references.${pipelinesName}.${replicateID}.rndingroup.300  -m 2 --nsize 300
-refselector -p 2 -s $LUSTRE/data/${pipelinesName}.${replicateID} -ip data -op outgroup500 -o $LUSTRE/data/references/references.${pipelinesName}.${replicateID}.outgroup.500  -m 0 --nsize 500
-refselector -p 2 -s $LUSTRE/data/${pipelinesName}.${replicateID} -ip data -op rndingroup500 -o $LUSTRE/data/references/references.${pipelinesName}.${replicateID}.rndingroup.500  -m 2 --nsize 500
+python -m refselector -p 2 -s $LUSTRE/data/${pipelinesName}.${replicateID} -ip data -op outgroup300 -o $LUSTRE/data/references/references.${pipelinesName}.${replicateID}.outgroup.300  -m 0 --nsize 300
+python -m refselector -p 2 -s $LUSTRE/data/${pipelinesName}.${replicateID} -ip data -op rndingroup300 -o $LUSTRE/data/references/references.${pipelinesName}.${replicateID}.rndingroup.300  -m 2 --nsize 300
+python -m refselector -p 2 -s $LUSTRE/data/${pipelinesName}.${replicateID} -ip data -op outgroup500 -o $LUSTRE/data/references/references.${pipelinesName}.${replicateID}.outgroup.500  -m 0 --nsize 500
+python -m refselector -p 2 -s $LUSTRE/data/${pipelinesName}.${replicateID} -ip data -op rndingroup500 -o $LUSTRE/data/references/references.${pipelinesName}.${replicateID}.rndingroup.500  -m 2 --nsize 500
 
-module unload anaconda2/4.0.0
+module unload anaconda2/4.0.0 sqlite 
