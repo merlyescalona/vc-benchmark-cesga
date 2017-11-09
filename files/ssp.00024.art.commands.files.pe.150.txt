@@ -1,0 +1,9 @@
+/home/merly/data/NGSphy_ssp.00024/scripts/ssp.00024.HS25.PE.150.art.commands.00000.sh
+/home/merly/data/NGSphy_ssp.00024/scripts/ssp.00024.HS25.PE.150.art.commands.00001.sh
+/home/merly/data/NGSphy_ssp.00024/scripts/ssp.00024.HS25.PE.150.art.commands.00002.sh
+/home/merly/data/NGSphy_ssp.00024/scripts/ssp.00024.HS25.PE.150.art.commands.00003.sh
+/home/merly/data/NGSphy_ssp.00024/scripts/ssp.00024.HS25.PE.150.art.commands.00004.sh
+/home/merly/data/NGSphy_ssp.00024/scripts/ssp.00024.HS25.PE.150.art.commands.00005.sh
+/home/merly/data/NGSphy_ssp.00024/scripts/ssp.00024.HS25.PE.150.art.commands.00006.sh
+/home/merly/data/NGSphy_ssp.00024/scripts/ssp.00024.HS25.PE.150.art.commands.00007.sh
+/home/merly/data/NGSphy_ssp.00024/scripts/ssp.00024.HS25.PE.150.art.commands.00008.sh

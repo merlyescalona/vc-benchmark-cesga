@@ -34,6 +34,6 @@ for individualID in $(seq 0 $numIndividuals); do
     if [[ MODE -eq "PAIRED" ]]; then
         fqFilesR2=($(find $ngsphyReplicatePath/$readsFolderName/$replicateST -name "*_${individualID}_R2.fq"))
         cat ${fqFilesR2[*]} >  $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_$replicateST_${individualID}_R2.fq
-        gzip $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_$replicateST_${individualID}_R2.fq
+        gzip -f $ngsphyReplicatePath/$NGSMODE/$replicateST/${pipelinesName}_$replicateST_${individualID}_R2.fq
     fi
 done
