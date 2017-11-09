@@ -19,8 +19,13 @@ distanceReference=("outgroup" "rndingroup")
 sizes=("300" "500")
 replicates=($(ls $ngsphyReplicatePath/${profileFOLDER}))
 sizeID=""
+
 if [[ ! -d $HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/ ]]; then
     mkdir -p $HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/
+fi
+
+if [[ -f "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/${pipelinesName}.${replicateID}.${profileFOLDER}.sh" ]]; then
+    rm "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/${pipelinesName}.${replicateID}.${profileFOLDER}.sh"
 fi
 for distRefID in ${distanceReference[*]}; do
     if [[ $profileFOLDER == *"150"* ]]; then
@@ -41,7 +46,7 @@ for distRefID in ${distanceReference[*]}; do
             outfile="$HOME/data/mappings/${pipelinesName}.${replicateID}/$profileFOLDER/$replicateST/${pipelinesName}.${replicateID}.$replicateST.${indID}.${distRefID}.${sizeID}.sam"
             RGID="${distRefID}-${sizeID}"
             SMID="S.${replicateST}-I.${indID}"
-            echo "bwa mem -t 4 -R \"@RG\tID:${RGID}\tSM:${SMID}\tPL:Illumina\tLB:${RGID}\tPU:${machine}\" ${referenceFile} ${infile}R1.fq.gz ${infile}R2.fq.gz > $outfile" >> "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/${pipelinesName}.${replicateID}.${profileFOLDER}.sh"
+            echo "bwa mem -M -t 4 -R \"@RG\tID:${RGID}\tSM:${SMID}\tPL:Illumina\tLB:${RGID}\tPU:${machine}\" ${referenceFile} ${infile}R1.fq.gz ${infile}R2.fq.gz > $outfile" >> "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/${pipelinesName}.${replicateID}.${profileFOLDER}.sh"
         done
     done
 done

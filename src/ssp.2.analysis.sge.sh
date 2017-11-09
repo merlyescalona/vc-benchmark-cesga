@@ -22,18 +22,30 @@ referencesReplicatePath="$HOME/data/references/references.${pipelinesName}.${rep
 ################################################################################
 # 1. REFERENCE INDEXING WITH BWA
 ################################################################################
-for refereceFolder in $referencesReplicatePath; do
-    for fastaFile in $(find $refereceFolder  -name "*.fasta"); do
-        qsub $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.1.sh $fastaFile
+for item in $(seq 1 25); do
+    simphyReplicateID=$item
+    pipelinesName="ssp"
+    replicatesNumDigits=5
+    replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
+    ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
+    simphyReplicatePath="$HOME/data/${pipelinesName}.${replicateID}"
+    referencesReplicatePath="$HOME/data/references/references.${pipelinesName}.${replicateID}*"
+    for refereceFolder in $referencesReplicatePath; do
+        for fastaFile in $(find $refereceFolder  -name "*.fasta"); do
+            qsub $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.1.sh $fastaFile
+        done
     done
 done
+# NumReplicates * 4
 ################################################################################
 # 2. GENERATION OF BWA COMMAND LINESs
 ################################################################################
-qsub -t $simphyReplicateID  -hold_jid ref.index $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh PE150DFLT HiSeq2500
-qsub -t $simphyReplicateID  -hold_jid ref.index $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh SE150DFLT HiSeq2500
-qsub -t $simphyReplicateID  -hold_jid ref.index $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh PE250DFLT MiSeqV3
-qsub -t $simphyReplicateID  -hold_jid ref.index $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh SE250DFLT MiSeqV3
+for item in $(seq 1 25); do
+    qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh PE150DFLT HiSeq2500
+    qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh SE150DFLT HiSeq2500
+    qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh PE250DFLT MiSeqV3
+    qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh SE250DFLT MiSeqV3
+done
 ################################################################################
 # 3. MAPPINGS
 ################################################################################
