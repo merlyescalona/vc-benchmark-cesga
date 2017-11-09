@@ -69,7 +69,7 @@ qsub -pe threaded 12 -t 1-$numJobs  $HOME/src/vc-benchmark-cesga/jobs/2.analysis
 # 6. INFORMATION ON THE MAPPING
 ################################################################################
 profiles=("PE250DFLT" "SE250DFLT" "PE150DFLT" "PE150OWN" "SE150DFLT") #
-for item in 1 2; do
+for item in 1 ; do
     simphyReplicateID=$item #$item
     pipelinesName="ssp"
     replicatesNumDigits=5
@@ -77,11 +77,29 @@ for item in 1 2; do
     ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
     for profileFOLDER in ${profiles[*]};do
         bammingFile="$HOME/src/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.${profileFOLDER}.picard.sh"
-        find "$HOME/data/mappings/${pipelinesName}.${replicateID}/${profileFOLDER}/" -name "*.bam" -type f  | sort  >> $bammingFile
+        find "$HOME/data/mappings/${pipelinesName}.${replicateID}/${profileFOLDER}/" -name "*.bam" -type f  | sort  > $bammingFile
         numJobs=$(cat $bammingFile | wc -l )
         qsub -t 1-$numJobs  $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.6.sh $bammingFile "${pipelinesName}.${replicateID}" $profileFOLDER
     done
 done
+
+
+profiles=("PE250DFLT" "SE250DFLT" "PE150DFLT" "PE150OWN" "SE150DFLT") #
+for item in 1 ; do
+    simphyReplicateID=$item #$item
+    pipelinesName="ssp"
+    replicatesNumDigits=5
+    replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
+    ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
+    for profileFOLDER in ${profiles[*]};do
+        bammingFile="$HOME/src/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.${profileFOLDER}.picard.sh"
+        find "$HOME/data/mappings/${pipelinesName}.${replicateID}/${profileFOLDER}/summary/" -name "*outgroup.500*" -type f  | tail -1 >
+
+    done
+done
+
+
+
 
 ################################################################################
 To ask the view command to report solely “proper pairs” we use the -f

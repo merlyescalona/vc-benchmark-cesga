@@ -9,32 +9,39 @@ module load java/jdk/1.8.0_31  bio/picard/2.0.1
 ################################################################################
 replicate=$2
 profile=$3
-echo "$replicate, $profile"
-filename=$(awk "NR==$SGE_TASK_ID" $1)
-base=$(basename $filename .bam)
-dir=$(dirname $filename )
-if [[ ! -d  $dir/metrics/ ]]; then
-    mkdir -p $dir/metrics/
-fi
-if [[ ! -d  $dir/dedup/ ]]; then
-    mkdir -p $dir/dedup/
-fi
-if [[ ! -d  $dir/summary/ ]]; then
-    mkdir -p $dir/summary/
-fi
-if [[ ! -d  $dir/histogram/ ]]; then
-    mkdir -p $dir/histogram/
-fi
-metricOutput="$dir/metrics/$base.metrics.txt"
-dedupOutput="$dir/dedup/$base.dedup.bam"
-echo "picard MarkDuplicates I=$filename O=$dedupOutput M=$metricOutput"
-picard MarkDuplicates I=$filename O=$dedupOutput M=$metricOutput
+bamFile=$(awk "NR==$SGE_TASK_ID" $1)
+reference=""
+echo "$replicate, $profile, $bamFile"
+base=$(basename $bamFile .bam)
+dir="$HOME/data/mappings/${pipelinesName}.${replicateID}/$profile/$replicateST"
+fileSplit=($(echo $base | tr "." " "))
+individual=${fileSplit[4]}
+replicate_file_ST=${fileSplit[3]}
 
+if [[ $bamFile == *"outgroup"* ]]; then
+  reference="outgroup"
+fi
 
-summaryOutput="$dir/summary/$base.summary.txt"
-histogramOutput="$dir/histogram/$base.histogram.txt"
+if [[ $bamFile == *"rndingroup"* ]]; then
+  reference="rndingroup"
+fi
+mkdir -p "$dir/dedup/$reference/"
+mkdir -p "$dir/histogram/$reference/"
+metricOutput="$dir/metrics/$reference/$base.metrics.txt"
+dedupOutput="$dir/dedup/$reference/$base.dedup.bam"
+echo "picard MarkDuplicates I=$bamFile O=$dedupOutput M=$metricOutput"
+picard MarkDuplicates INPUT=$bamFile OUTPUT=$dedupOutput METRICS_FILE=$metricOutput
 
-head -8 $metricOutput | tail -n+7 > $summaryOutput
+header=$(head -7 $metricOutput | tail -n+7)
+summaryInfo=$(head -8 $metricOutput | tail -n+8)
+
+if [[ ! -f $summaryFile ]]; then
+    echo -e "SIMPHY_REPLICATE\tREPLICATE_ST\tINDIVIDUAL_ID\tPROFILE\t$header" > $summaryFile
+fi
+echo -e "${fileSplit[1]}.${fileSplit[2]}\t${replicate_file_ST}\t${profile}\t${summaryInfo}">> $summaryOutput
+
+histogramOutput="$dir/histogram/$reference/$base.histogram.txt"
+
 tail -n+11 $metricOutput > $histogramOutput
 ################################################################################
 module unload java/jdk/1.8.0_31  bio/picard/2.0.1

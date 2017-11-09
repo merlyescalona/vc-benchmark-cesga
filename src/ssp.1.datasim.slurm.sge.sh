@@ -47,7 +47,7 @@ source $HOME/vc-benchmark-cesga/src/ssp.variables.sh
 ################################################################################################################################################
 # SLURM ENV - This is run @ ft2.cesga.es
 ################################################################################################################################################
-simphyReplicateID="16-18"
+simphyReplicateID="19-25"
 ################################################################################
 # 1. SIMPHY
 ################################################################################
@@ -66,7 +66,7 @@ step2JOBID=$(sbatch -a $simphyReplicateID --dependency=afterok:$step1JOBID $fold
 ################################################################################
 # Need to figure out the folder from where I'll call indelilble
 # Need to filter the species tree replicates that do not have ninds % 2==0
-for simphyReplicateID in 16 17 18; do
+for simphyReplicateID in 19 20 21 22 23 24 25; do
     numJobs=$(wc -l $HOME/vc-benchmark-cesga/files/${pipelinesName}.$(printf "%05g" $simphyReplicateID).indelible.folders.txt | awk '{ print $1}')
     step3JOBID=$(sbatch -a 1-$numJobs $folderJOBS/1.datasim/ssp.3.indelible.array.sh $simphyReplicateID | awk '{ print $4}')
 done
@@ -74,7 +74,7 @@ done
 <<CHECK_NUM_FILES_INDELIBLE
 # To check num fasta files and trees in indelible folders
 count=0; alljobs=0;
-for simphyReplicateID in $(seq 16 18); do
+for simphyReplicateID in $(seq 24 25); do
     indelibleFolders="$HOME/vc-benchmark-cesga/files/ssp.$(printf "%05g" $simphyReplicateID).indelible.folders.txt"
     for item in $(cat $indelibleFolders);do
         cd $item;
@@ -116,32 +116,34 @@ step4JOBID=$(qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/1.dat
 ########################################################################
 step6OBID=$(qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.6.prep.2.art.sge.sh | awk '{ print $2}')
 simphyReplicateID=6
-pipelinesName="ssp"
-replicatesNumDigits=5
-replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
-ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
-replicates=($(ls $ngsphyReplicatePath/reads))
-artFilesReplicate="$HOME/src/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.art.commands.files.txt"
-rm $artFilesReplicate
-touch $artFilesReplicate
-for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.HS25.PE.150.art.commands*" | sort); do
-    echo $item >> $artFilesReplicate
+for item in 1227; do # $(seq 17); do
+    simphyReplicateID=$item #$item
+    pipelinesName="ssp"
+    replicatesNumDigits=5
+    replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
+    ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
+    replicates=($(ls $ngsphyReplicatePath/reads))
+    artFilesReplicate="$HOME/src/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.art.commands.files.txt"
+    rm $artFilesReplicate
+    touch $artFilesReplicate
+    for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.HS25.PE.150.art.commands*" | sort); do
+        echo $item >> $artFilesReplicate
+    done
+    for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.HS25.SE.150.art.commands*" | sort); do
+        echo $item >> $artFilesReplicate
+    done
+    for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.MSv3.SE.250.art.commands*" | sort); do
+        echo $item >> $artFilesReplicate
+    done
+    for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.MSv3.PE.250.art.commands*" | sort); do
+        echo $item >> $artFilesReplicate
+    done
+    nJobs=$(cat $artFilesReplicate |wc -l | awk '{print $1}')
+    step7JOBID=$(qsub -t 1-$nJobs $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.7.art.sge.sh $artFilesReplicate | awk '{print $2}')
 done
-for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.HS25.SE.150.art.commands*" | sort); do
-    echo $item >> $artFilesReplicate
-done
-for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.MSv3.SE.250.art.commands*" | sort); do
-    echo $item >> $artFilesReplicate
-done
-for item in $(find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.MSv3.PE.250.art.commands*" | sort); do
-    echo $item >> $artFilesReplicate
-done
-nJobs=$(cat $artFilesReplicate |wc -l | awk '{print $1}')
-step7JOBID=$(qsub -t 1-$nJobs $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.7.art.sge.sh $artFilesReplicate | awk '{print $2}')
-
 ################################################################################
 ################################################################################
-for item in 16 17 18; do
+for item in 25; do
     LUSTRE="/mnt/lustre/scratch/home/uvi/be/mef"
     simphyReplicateID=$item #$item
     pipelinesName="ssp"
@@ -151,8 +153,8 @@ for item in 16 17 18; do
     ngsphyReplicatePathCESGA="$LUSTRE/data/ngsphy.data/NGSphy_${pipelinesName}.${replicateID}/"
     replicateFOLDERCESGA="$LUSTRE/data/$pipelinesName.$replicateID/"
     replicateFOLDERTRIPLOID="$HOME/data/$pipelinesName.$replicateID"
-    # rsync -rP uvibemef@ft2.cesga.es:$ngsphyReplicatePathCESGA $ngsphyReplicatePathTRIPLOID
-    rsync -rP uvibemef@ft2.cesga.es:$replicateFOLDERCESGA $replicateFOLDERTRIPLOID
+    rsync -rP uvibemef@ft2.cesga.es:$ngsphyReplicatePathCESGA $ngsphyReplicatePathTRIPLOID
+    #rsync -rP uvibemef@ft2.cesga.es:$replicateFOLDERCESGA $replicateFOLDERTRIPLOID
 done
 
 ################################################################################
@@ -184,4 +186,79 @@ for item in $(qstat | grep org  | awk '{print $1}'); do
     replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
     ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
     echo -e "${pipelinesName}.${replicateID}\t$item\t$folderParam\t$( ls -l $ngsphyReplicatePath/$folderParam| grep R1 | wc -l)";
+done
+
+
+
+################################################################################
+# To check status of  ART JOBS
+################################################################################
+for jobid  in $(qstat | tail -n+2 | grep art | awk '{print $1}' | sort | uniq ); do
+echo -e "$(qstat -j $jobid | grep job_args | awk '{print $2}')\t$(qstat | grep $jobid | wc -l)"
+done
+
+################################################################################
+# Launch single profile for specific replicates to org fq per ind
+################################################################################
+for item in 16 18 21; do # $(seq 17); do
+    simphyReplicateID=$item #$item
+    pipelinesName="ssp"
+    replicatesNumDigits=5
+    replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
+    ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
+    replicates=($(ls $ngsphyReplicatePath/reads))
+    for replicateST in ${replicates[*]}; do
+        step9PE150DFLT=$(qsub -t $simphyReplicateID $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.9.organization.fq.individuals.sge.sh PE150DFLT PAIRED $replicateST reads_run_PE_150_DFLT)
+    done
+done
+################################################################################
+
+for item in $(seq 11 25); do
+    simphyReplicateID=$item #$item
+    pipelinesName="ssp"
+    replicatesNumDigits=5
+    replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
+    ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
+    echo "rm $ngsphyReplicatePath/scripts/*art.commands*"
+    rm $ngsphyReplicatePath/scripts/*art.commands*
+done
+
+
+
+for item in 24 25; do # $(seq 11 25); do
+    echo $item
+    simphyReplicateID=$item #$item
+    pipelinesName="ssp"
+    replicatesNumDigits=5
+    replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
+    ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
+    triploidARTPE150=$ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.triploid.HS25.PE.150.sh
+    split -l 5000 -d -a 5 $triploidARTPE150 $ngsphyReplicatePath/scripts/${pipelinesName}.${replicateID}.HS25.PE.150.art.commands.
+    for file in $(ls $ngsphyReplicatePath/scripts/*.art.commands*); do    mv $file "$file.sh"; done
+done
+
+for item in $(seq 11 25); do
+    simphyReplicateID=$item #$item
+    pipelinesName="ssp"
+    replicatesNumDigits=5
+    replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
+    ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
+    replicates=($(ls $ngsphyReplicatePath/reads))
+    artFilesReplicate="$HOME/src/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.art.commands.files.pe.150.txt"
+    rm $artFilesReplicate
+    touch $artFilesReplicate
+    find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.HS25.PE.150.art.commands*" | sort > $artFilesReplicate
+    nJobs=$(cat $artFilesReplicate |wc -l | awk '{print $1}')
+    step7JOBID=$(qsub -t 1-$nJobs $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.7.art.sge.sh $artFilesReplicate | awk '{print $2}')
+done
+
+for item in $(seq 11 25); do
+    simphyReplicateID=$item #$item
+    pipelinesName="ssp"
+    replicatesNumDigits=5
+    replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
+    ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
+    replicates=($(ls $ngsphyReplicatePath/reads))
+    artFilesReplicate="$HOME/src/vc-benchmark-cesga/files/${pipelinesName}.${replicateID}.art.commands.files.pe.150.txt"
+    find $ngsphyReplicatePath/scripts/ -name "${pipelinesName}.${replicateID}.HS25.PE.150.art.commands*"
 done

@@ -1,0 +1,176 @@
+---
+title: "Progress report - Data simulation"
+author: "Merly Escalona <merlyescalona@uvigo.es>"
+date: "November 3rd, 2017"
+output:
+    html_document:
+      theme: cosmo
+---
+
+```{R libraries, echo=F}
+  library(knitr)
+```
+
+<div class="panel panel-primary">
+  <div class="panel-heading">Progress</div>
+  <div class="panel-body">
+    <p>
+    </p>
+  </div>
+</div>
+# Introduction
+
+# Objectives
+## General
+
+Objective of this run is to optimize a pipeline for the analysis of simualated capture data from shallow phylogenies.
+
+## Specifics
+- Data simulation
+    - Generate species trees for shallow phylogenies
+    - Generate gene trees corresponding to the number of the (to-be) captured loci.
+    - Generate the sequences representing each of the loci.
+    - Obtain a set of diploid individuals
+    - Generation of NGS data from the diploid individuals
+        - PE150OWN (**only** for 4 replicates, using customized profile for HiSeq2500 150bp reads from the Conus WGS)
+        - PE150DFLT
+        - SE150DFLT
+        - PE250DFLT
+        - SE250DFLT
+    - Select reference
+        - outgroup
+        - random ingroups
+        - 300-N-sequence-long and 500-N-sequence-long separators (corresponding to the different read sizes of the NGS profiles).
+- Data analysis
+    - Extraction of ground truth variant data set (TRUE VARIANTS)
+    - Mapping of the NGS datasets per individual to the 2 references.
+    - Mark duplicates
+    - Coverage distribution
+    - SNP discovery (variant calling)
+        - ANGSD (default values)
+    - Verification of SNPs called, based on the true SNPs (ground truth) from the simulated data
+
+# Process of data dimulation
+
+## Simulation of phylogenies with SimPhy
+
+SimPhy is a program for the simulation of gene family evolution under incomplete lineage sorting (ILS), gene duplication and loss (GDL), replacing horizontal gene transfer (HGT) and gene conversion (GC). SimPhy simulates species, locus and gene trees with different levels of rate heterogeneity, and uses INDELible [@Fletcher2009] to evolve nucleotide (codon/aminoacid) sequences along the gene trees. The input for SimPhy are the simulation parameter values, which can be fixed or sampled from user-defined statistical distributions. The output consists of sequence alignments and a relational database that facilitate posterior analyses [@Mallo2015].
+
+### Species tree height decision
+We were looking for some incomplete lineage sorting, hence needed gene trees with a mean of extra lineages (~3). In order to know which was the specific tree height range, we ran several ranges, and ended up with the 200K - 20 M years range.
+
+The coalescent units calculation should be this for diploids:
+```
+Ne=100000
+cu=1/(2*Ne)
+```
+
+But, SimPhy simulates haploid genomes, therefore, the calculation is:
+
+```
+cu=1/Ne
+```
+
+The outgroup is added a posteriori, which in our case the value is set as 1. Taken into account that, the length of the root ingroup to the root, is the same as the ingroup tree, the quantities multiply by 2. Observed results coincide with the expected ones.
+
+###
+
+## Simulation of sequence alignments (Prep. SimPhy's Wrapper)
+
+SimPhy includes a perl script to simulate sequence alignments using INDELible. The INDELible_wrapper.pl uses a configuration file in which the user can specify different models for different loci (i.e., partitions).The Wrapper has been run with a slight modification of the GTR parameters.
+
+## Simulation of sequence alignments with INDELible
+INDELible [@Fletcher2009] is an application for biological sequence simulation that combines many features in the same place for the first time. Using a length-dependent model of indel formation it can simulate evolution of multi-partitioned nucleotide, amino-acid, or codon data sets through the processes of insertion, deletion, and substitution in continuous time.
+
+Nucleotide simulations may use the general unrestricted model or the general time reversible model and its derivatives, and amino-acid simulations can be conducted using fifteen different empirical rate matrices. Substitution rate heterogeneity can be modelled via the continuous and discrete gamma distributions, with or without a proportion of invariant sites. INDELible can also simulate under non-homogenous and non-stationary conditions where evolutionary models are permitted to change across a phylogeny.
+
+Unique among indel simulation programs, INDELible offers the ability to simulate using codon models that exhibit nonsynonymous/synonymous rate ratio heterogeneity among sites and/or lineages.
+
+# Data Simulation: General Numbers
+
+## SimPhy
+
+```{R simphy_params, echo=F}
+overview.evol<-data.frame(
+        Variable=c("Species trees",
+                   "Gene trees per ST ",
+                   "Speciation rate",
+                   "Species tree height (Years)",
+                   "Number of taxa",
+                   "Number of individuals per taxa",
+                   "Outgroup",
+                   "Number of individuals per species",
+                   "Tree-wide effective population size",
+                   "Tree-wide substitution rate",
+                   "Locus-specific rate heterogeneity",
+                   "Gene-family specific rate heterogeneity modifier",
+                   "Gene-by-lineage-specific rate heterogeneity modifiers"),
+        Value=c("10",
+                "U:100,3000:",
+                "L:-15,1",
+                "U:200.000,20.000.000 (200K - 20My)",
+                "U:5,12",
+                "U:4,12",
+                "1",
+                "Ne ~ 10.000",
+                "Common substitution rate:  (10^8,10^10)",
+                "L:1.2,1",
+                "L:1.4,1",
+                "F:GP")
+      )
+```
+
+## SimPhy's INDELible wrapper
+For the GTR model in INDELible, they are structured as follows:
+
+```{R data_simphy_wrapper_params, echo=F}
+df=data.frame( Order="**Values**", CT=20, AT=2, GT=4, AC=6, Gc=8, AG=16)
+kable(df,format="markdown")
+## |Order  | CT  | AT | GT | AC  | GC  | AG  |
+## |Values | 20  |  2 |  4 | 6   | 8   | 16  |
+```
+
+Template used to generate the INDELible's control file:
+
+```
+[TYPE] NUCLEOTIDE 1
+[SETTINGS]
+    [fastaextension] fasta
+    [output] FASTA
+[SIMPHY-UNLINKED-MODEL] csSim_unlinked
+    [submodel] GTR $(rd:20,2,4,6,8,16)
+    [statefreq] $(d:1,1,1,1)
+[rates] 0 $(e:10000000) 0
+[SIMPHY-PARTITIONS] csSimUnlinked [1 csSim_unlinked $(100, 2000)]
+[SIMPHY-EVOLVE] 1 data
+```
+
+## NGSphy (NGS configurations)
+
+```
+path=/home/user/
+output_folder_name=NGSphy_ssp.XXXXX
+ploidy=2
+[data]
+inputmode=4
+simphy_folder_path=ssp.XXXXX
+simphy_data_prefix=data
+simphy_filter=true
+[coverage]
+experiment=U:1, 300
+individual=LN:1.2,1
+locus=LN:1.2,1
+[ngs-reads-art]
+ss=HS25
+l=150
+m=215
+s=50
+q=true
+p=true
+na=false
+[execution]
+environment=bash
+runART=off
+running_times=off
+threads=2
+```
