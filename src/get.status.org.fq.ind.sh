@@ -32,12 +32,22 @@ rownames(inds)=repALL
 rownames(status)=repALL
 inds-status
 apply(inds-status, 1,sum)
-ssp.00001 ssp.00002 ssp.00003 ssp.00004 ssp.00005 ssp.00006 ssp.00007 ssp.00008
-       0       -30         0         0        43        90        40        27
+ssp.00001 ssp.00002 ssp.00003 ssp.00004 ssp.00005 ssp.00006 ssp.00007 ssp.00008 
+        0       -33         0         0        42        89        39        27
 ssp.00009 ssp.00010 ssp.00011 ssp.00012 ssp.00013 ssp.00014 ssp.00015 ssp.00016
-      42         0       159        64       105        51         5        55
+       42         0       161        62       105        50         4        52
 ssp.00017 ssp.00018 ssp.00019 ssp.00020 ssp.00021 ssp.00022 ssp.00023 ssp.00024
-      85        55        82       197        92        90       166         0
+       85        54        79       195        87        82       163         0
 ssp.00025
-      81
+       79
+
 RCOMMANDS
+
+
+for item in 1 3 4 10 24; do
+    simphyReplicateID=$item
+    pipelinesName="ssp"
+    replicatesNumDigits=5
+    replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
+    cat "${pipelinesName}.${replicateID}.indelible.folders.txt" | wc -l
+done
