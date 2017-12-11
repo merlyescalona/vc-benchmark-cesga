@@ -23,6 +23,8 @@ loadPackageList(packages)
 #install_github("fmichonneau/phyloch")
 ################################################################################
 # NEed to generate a file with information ST   GT      FASTA PATH FILE
+biocLite("Biostrings")
+
 library(data.table)
 filename="test.files.txt"
 indexfiles=fread(filename)

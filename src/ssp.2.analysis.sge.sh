@@ -40,7 +40,7 @@ done
 ################################################################################
 # 2. GENERATION OF BWA COMMAND LINESs
 ################################################################################
-for item in $(seq 1 25); do
+for simphyReplicateID in $(seq 2 25); do
     qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh PE150DFLT HiSeq2500
     qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh SE150DFLT HiSeq2500
     qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.2.sh PE250DFLT MiSeqV3
@@ -49,11 +49,24 @@ done
 ################################################################################
 # 3. MAPPINGS
 ################################################################################
-profiles=("SE150DFLT" "PE150DFLT"  "SE250DFLT" "PE250DFLT" ) # ("PE150OWN") #
-for profileFOLDER in ${profiles[*]};do
-    numJobs=$(find "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/" -name "${pipelinesName}.${replicateID}.${profileFOLDER}.bwa.commands.*" -type f | wc -l );
-    echo $numJobs
-    qsub -t 1-$numJobs  $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.3.sh "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/${pipelinesName}.${replicateID}.${profileFOLDER}.bwa.commands"
+# CHECK FQ STATYS
+for folder in $(find /home/merly/data/NGSphy_ssp.000* -mindepth 2 -maxdepth 2 -type d  | grep PE150DFLT); do
+    echo -e "$folder\t$(ls $folder | grep fq$  | wc -l)";
+done
+
+profiles=("PE150DFLT") # ("SE150DFLT" "PE150DFLT"  "SE250DFLT" "PE250DFLT" ) # ("PE150OWN") #
+for item in 10 24; do
+    simphyReplicateID=$item
+    pipelinesName="ssp"
+    replicatesNumDigits=5
+    replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
+    ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
+    simphyReplicatePath="$HOME/data/${pipelinesName}.${replicateID}"
+    for profileFOLDER in ${profiles[*]};do
+        numJobs=$(find "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/" -name "${pipelinesName}.${replicateID}.${profileFOLDER}.bwa.commands.*" -type f | wc -l );
+        echo $numJobs
+        qsub -t 1-$numJobs  $HOME/src/vc-benchmark-cesga/jobs/2.analysis/ssp.analysis.3.sh "$HOME/data/mappings/${pipelinesName}.${replicateID}/scripts/${pipelinesName}.${replicateID}.${profileFOLDER}.bwa.commands"
+    done
 done
 ################################################################################
 # 4. Generating BAMMING SORTING commands

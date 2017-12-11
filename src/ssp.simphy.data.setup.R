@@ -18,7 +18,7 @@ pEH20a=plnorm(E_Height_20My_Lima, mean=m, sdlog=s)
 pEH200a=plnorm(E_Height_200Ky_Lima, mean=m, sdlog=s)
 points(c(pEH20a,pEH200a),log10(c(E_Height_20My_Lima,E_Height_200Ky_Lima)), col="blue", pch=19)
 
-meanLeaves=mean(c(4,12)) # these are our new number of leaves (remember, haploid individual for simphy)
+meanLeaves=mean(c(5,12)) # these are our new number of leaves (remember, haploid individual for simphy)
 E_Height_200Ky_Limb=log(meanLeaves)/200000
 E_Height_20My_Limb=log(meanLeaves)/20000000
 pEH20b=plnorm(E_Height_20My_Limb, mean=m, sdlog=s)

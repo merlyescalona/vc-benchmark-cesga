@@ -15,10 +15,11 @@ simphy_folder_path=$folderSIMPHY
 simphy_data_prefix=data
 simphy_filter=true
 [coverage]
-experiment=U:1, 300
+experiment=U:0.1, 300
 individual=LN:1.2,1
 locus=LN:1.2,1
 [ngs-reads-art]
+fcov=true
 ss=HS25
 l=150
 m=215

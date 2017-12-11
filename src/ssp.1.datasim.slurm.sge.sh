@@ -116,7 +116,7 @@ step4JOBID=$(qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/1.dat
 ########################################################################
 step6OBID=$(qsub -t $simphyReplicateID  $HOME/src/vc-benchmark-cesga/jobs/1.datasim/ssp.6.prep.2.art.sge.sh | awk '{ print $2}')
 simphyReplicateID=6
-for item in 1227; do # $(seq 17); do
+for item in 10; do # $(seq 17); do
     simphyReplicateID=$item #$item
     pipelinesName="ssp"
     replicatesNumDigits=5
@@ -185,7 +185,7 @@ for item in $(qstat | grep org  | awk '{print $1}'); do
     replicatesNumDigits=5
     replicateID="$(printf "%0${replicatesNumDigits}g" $simphyReplicateID)"
     ngsphyReplicatePath="$HOME/data/NGSphy_${pipelinesName}.${replicateID}"
-    echo -e "${pipelinesName}.${replicateID}\t$item\t$folderParam\t$( ls -l $ngsphyReplicatePath/$folderParam| grep R1 | wc -l)";
+    echo -e "${pipelinesName}.${replicateID}\t$item\t$folderParam\t$( find $ngsphyReplicatePath/$folderParam -mtime 2 | grep R1 | wc -l)";
 done
 
 
@@ -200,7 +200,7 @@ done
 ################################################################################
 # Launch single profile for specific replicates to org fq per ind
 ################################################################################
-for item in 16 18 21; do # $(seq 17); do
+for item in 17 18 19 21 22 23; do # $(seq 17); do
     simphyReplicateID=$item #$item
     pipelinesName="ssp"
     replicatesNumDigits=5
